@@ -5,7 +5,7 @@ import { requireAuthUser } from "@/lib/data/profile";
 import { getOrCreateSubscription } from "@/lib/billing/credits";
 import { getStripePriceId, type PlanIdValue } from "@/lib/billing/plans";
 import { prisma } from "@/lib/prisma";
-import { stripe } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 
 type ActionResult = { error: string };
 
@@ -17,7 +17,7 @@ async function getOrCreateStripeCustomerId(userId: string, email: string): Promi
   const subscription = await getOrCreateSubscription(userId);
   if (subscription.stripeCustomerId) return subscription.stripeCustomerId;
 
-  const customer = await stripe.customers.create({ email, metadata: { userId } });
+  const customer = await getStripe().customers.create({ email, metadata: { userId } });
   await prisma.subscription.update({ where: { userId }, data: { stripeCustomerId: customer.id } });
   return customer.id;
 }
@@ -30,7 +30,7 @@ export async function createCheckoutSessionAction(planId: PlanIdValue): Promise<
   const user = await requireAuthUser();
   const customerId = await getOrCreateStripeCustomerId(user.id, user.email ?? "");
 
-  const session = await stripe.checkout.sessions.create({
+  const session = await getStripe().checkout.sessions.create({
     mode: "subscription",
     customer: customerId,
     client_reference_id: user.id,
@@ -56,7 +56,7 @@ export async function createPortalSessionAction(): Promise<ActionResult | void> 
     return { error: "Aucun abonnement à gérer pour le moment." };
   }
 
-  const session = await stripe.billingPortal.sessions.create({
+  const session = await getStripe().billingPortal.sessions.create({
     customer: subscription.stripeCustomerId,
     return_url: `${siteUrl()}/dashboard/billing`,
   });

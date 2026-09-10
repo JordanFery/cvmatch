@@ -9,7 +9,16 @@ import { reportError } from "@/lib/monitoring/alert";
 
 // Enforced by the "server-only" import above (build fails if a Client
 // Component ends up pulling this module in) — never rely on the comment alone.
-const client = new Anthropic();
+//
+// Lazily constructed — see src/lib/stripe.ts for why: a top-level `new
+// Anthropic()` would run during Next.js's build-time page-data-collection
+// pass and crash the whole build if ANTHROPIC_API_KEY isn't set in that
+// environment, even though this module never actually runs at build time.
+let client: Anthropic | undefined;
+function getClient(): Anthropic {
+  if (!client) client = new Anthropic();
+  return client;
+}
 
 const SYSTEM_PROMPT = `You are an ATS (Applicant Tracking System) compatibility analyst. You compare a candidate's CV against a job posting and report how well they match, using only the information given.
 
@@ -35,7 +44,7 @@ export async function analyzeAtsCompatibility(cv: ParsedCv, jobOffer: JobOfferDa
 
   for (let attempt = 0; attempt < 2; attempt++) {
     try {
-      const response = await client.messages.parse({
+      const response = await getClient().messages.parse({
         model: "claude-opus-5",
         max_tokens: 4096,
         system: SYSTEM_PROMPT,
