@@ -1,0 +1,377 @@
+// Prisma schema for CVMatch.
+// Auth is handled by Supabase Auth (the `auth.users` table lives in Supabase's
+// own schema and is not managed here). The `User` model below mirrors the
+// public-facing profile for each authenticated user and is kept in sync with
+// `auth.users` by a database trigger (see prisma/migrations).
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// Public profile for an authenticated user. `id` matches the Supabase
+/// `auth.users.id` (uuid) 1:1.
+///
+/// Future features will attach here via relations, e.g.:
+///   applications        Application[]
+///   generatedDocuments  GeneratedDocument[]
+///   subscription        Subscription?
+///   usage               Usage?
+model User {
+  id                   String   @id @db.Uuid
+  email                String   @unique
+  firstName            String   @map("first_name")
+  lastName             String   @map("last_name")
+  avatarUrl            String?  @map("avatar_url")
+  phone                String?
+  location             String?
+  linkedinUrl          String?  @map("linkedin_url")
+  portfolioUrl         String?  @map("portfolio_url")
+  /// Target number of applications the user wants to send per day — shown
+  /// against today's actual count on the dashboard. Null means no goal set.
+  dailyApplicationGoal Int?     @map("daily_application_goal")
+  /// Grants access to /dashboard/admin. Never self-service — set directly in
+  /// the database, same as the VIP plan grant.
+  isAdmin              Boolean  @default(false) @map("is_admin")
+  createdAt            DateTime @default(now()) @map("created_at")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  cvs          Cv[]
+  jobOffers    JobOffer[]
+  atsAnalyses  AtsAnalysis[]
+  tailoredCvs  TailoredCv[]
+  coverLetters CoverLetter[]
+  subscription Subscription?
+  badges       UserBadge[]
+
+  @@map("profiles")
+}
+
+enum CvFileType {
+  PDF
+  DOCX
+}
+
+enum CvStatus {
+  UPLOADED
+  PROCESSING
+  READY
+  FAILED
+}
+
+enum CvSource {
+  /// Came from a file the user uploaded (PDF/DOCX) — has storage/file fields set.
+  UPLOADED
+  /// Saved from a tailored CV generation — no underlying file, structured data only.
+  GENERATED
+}
+
+/// A CV in the user's library. `isMaster` marks the default CV used for ATS
+/// analysis, tailoring, and "apply with my CV as-is"; at most one row per
+/// user may have `isMaster = true` (enforced by a partial unique index, see
+/// migrations). Users can hold any number of additional CVs — other uploads,
+/// or tailored CVs explicitly saved to the library — side by side.
+model Cv {
+  id               String        @id @default(uuid()) @db.Uuid
+  userId           String        @map("user_id") @db.Uuid
+  user             User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isMaster         Boolean       @default(false) @map("is_master")
+  isFavorite       Boolean       @default(false) @map("is_favorite")
+  source           CvSource      @default(UPLOADED)
+  name             String
+  /// Null for `GENERATED` CVs — there is no uploaded file to reference.
+  originalFileName String?       @map("original_file_name")
+  fileType         CvFileType?   @map("file_type")
+  storagePath      String?       @map("storage_path")
+  status           CvStatus      @default(UPLOADED)
+  /// Raw text extracted from the file. Kept as the unstructured source of
+  /// truth alongside the structured `CvData` below.
+  rawText          String?       @map("raw_text")
+  errorMessage     String?       @map("error_message")
+  data             CvData?
+  atsAnalyses      AtsAnalysis[]
+  tailoredCvs      TailoredCv[]
+  coverLetters     CoverLetter[]
+  createdAt        DateTime      @default(now()) @map("created_at")
+  updatedAt        DateTime      @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@map("cvs")
+}
+
+/// Structured content extracted (and user-edited) from a `Cv`. Kept separate
+/// from `Cv` so the raw file/status bookkeeping never mixes with the
+/// user-editable structured data. Nested sections are stored as JSON —
+/// they're document-shaped and always read/written as a whole through the
+/// Zod schema in `src/lib/validations/cv.ts`, so normalizing them into extra
+/// relational tables at this stage would be premature.
+model CvData {
+  id             String   @id @default(uuid()) @db.Uuid
+  cvId           String   @unique @map("cv_id") @db.Uuid
+  cv             Cv       @relation(fields: [cvId], references: [id], onDelete: Cascade)
+  personalInfo   Json     @map("personal_info")
+  summary        String?
+  experiences    Json
+  education      Json
+  skills         Json
+  certifications Json
+  projects       Json
+  languages      Json
+  customSections Json     @map("custom_sections")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@map("cv_data")
+}
+
+enum JobOfferStatus {
+  PROCESSING
+  READY
+  FAILED
+}
+
+enum JobOfferSourceType {
+  TEXT
+  URL
+}
+
+enum ApplicationStatus {
+  NOT_SENT
+  SENT
+  INTERVIEW
+  REJECTED
+}
+
+enum AppliedCvType {
+  MASTER
+  TAILORED
+}
+
+/// A job offer the user has imported (pasted text or a URL) and saved.
+/// `rawDescription` is the untouched source text; the fields below are
+/// structured by the same "extract, never fabricate" LLM pipeline used for
+/// `Cv`. This is the "JOB OFFER" step of the USER -> MASTER CV -> JOB OFFER ->
+/// TAILORED CV pipeline sketched in Feature 2 — ATS matching against a `Cv`
+/// and generating a tailored CV are later features that will reference this
+/// model rather than change it.
+model JobOffer {
+  id                String             @id @default(uuid()) @db.Uuid
+  userId            String             @map("user_id") @db.Uuid
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status            JobOfferStatus     @default(PROCESSING)
+  isFavorite        Boolean            @default(false) @map("is_favorite")
+  sourceType        JobOfferSourceType @map("source_type")
+  sourceUrl         String?            @map("source_url")
+  rawDescription    String             @map("raw_description")
+  errorMessage      String?            @map("error_message")
+  title             String
+  company           String?
+  location          String?
+  employmentType    String?            @map("employment_type")
+  remotePolicy      String?            @map("remote_policy")
+  salaryRange       String?            @map("salary_range")
+  seniorityLevel    String?            @map("seniority_level")
+  summary           String?
+  responsibilities  Json
+  requirements      Json
+  niceToHave        Json               @map("nice_to_have")
+  keySkills         Json               @map("key_skills")
+  atsAnalyses       AtsAnalysis[]
+  tailoredCvs       TailoredCv[]
+  coverLetters      CoverLetter[]
+  /// Application tracking (the "CRM" board on /dashboard/applications) — kept
+  /// on the offer itself rather than a separate model since there is exactly
+  /// one application per offer today; split it out if that ever changes.
+  applicationStatus ApplicationStatus  @default(NOT_SENT) @map("application_status")
+  appliedAt         DateTime?          @map("applied_at")
+  /// Which CV variant was attached the last time "Postuler" was confirmed — informational only.
+  appliedCvType     AppliedCvType?     @map("applied_cv_type")
+  createdAt         DateTime           @default(now()) @map("created_at")
+  updatedAt         DateTime           @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@map("job_offers")
+}
+
+enum AtsAnalysisStatus {
+  PROCESSING
+  READY
+  FAILED
+}
+
+/// A point-in-time ATS compatibility analysis between a `Cv` and a
+/// `JobOffer` — the "TAILORED CV" step from Feature 2's pipeline sketch
+/// (USER -> MASTER CV -> JOB OFFER -> TAILORED CV) will read `missingSkills`
+/// and `recommendations` from here rather than recomputing them. Re-running
+/// the analysis overwrites the existing row for the same (cv, jobOffer) pair
+/// — one current analysis per pairing, not a history.
+model AtsAnalysis {
+  id              String            @id @default(uuid()) @db.Uuid
+  userId          String            @map("user_id") @db.Uuid
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cvId            String            @map("cv_id") @db.Uuid
+  cv              Cv                @relation(fields: [cvId], references: [id], onDelete: Cascade)
+  jobOfferId      String            @map("job_offer_id") @db.Uuid
+  jobOffer        JobOffer          @relation(fields: [jobOfferId], references: [id], onDelete: Cascade)
+  status          AtsAnalysisStatus @default(PROCESSING)
+  errorMessage    String?           @map("error_message")
+  score           Int?
+  summary         String?
+  matchedSkills   Json              @map("matched_skills")
+  missingSkills   Json              @map("missing_skills")
+  strengths       Json
+  gaps            Json
+  recommendations Json
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+
+  @@unique([cvId, jobOfferId])
+  @@index([userId])
+  @@map("ats_analyses")
+}
+
+enum TailoredCvStatus {
+  PROCESSING
+  READY
+  FAILED
+}
+
+/// A version of the master `Cv`'s structured content reordered/rephrased for
+/// a specific `JobOffer` — the "TAILORED CV" node in the pipeline. Generation
+/// may reorder sections, re-prioritize which existing skills/bullets are
+/// featured, and rewrite wording, but must never invent an employer, title,
+/// skill, or achievement absent from the source `Cv`. Never overwrites the
+/// master CV. `data` mirrors `ParsedCv` (see src/lib/validations/cv.ts) as a
+/// single JSON document — no raw-file bookkeeping to separate here, unlike
+/// `Cv`/`CvData`, so one column is enough.
+model TailoredCv {
+  id           String           @id @default(uuid()) @db.Uuid
+  userId       String           @map("user_id") @db.Uuid
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cvId         String           @map("cv_id") @db.Uuid
+  cv           Cv               @relation(fields: [cvId], references: [id], onDelete: Cascade)
+  jobOfferId   String           @map("job_offer_id") @db.Uuid
+  jobOffer     JobOffer         @relation(fields: [jobOfferId], references: [id], onDelete: Cascade)
+  status       TailoredCvStatus @default(PROCESSING)
+  errorMessage String?          @map("error_message")
+  data         Json
+  createdAt    DateTime         @default(now()) @map("created_at")
+  updatedAt    DateTime         @updatedAt @map("updated_at")
+
+  @@unique([cvId, jobOfferId])
+  @@index([userId])
+  @@map("tailored_cvs")
+}
+
+enum CoverLetterStatus {
+  PROCESSING
+  READY
+  FAILED
+}
+
+/// A generated cover letter for a specific `JobOffer`, grounded in the
+/// candidate's master `Cv` and (when found) real facts about the company
+/// gathered via web search at generation time. `companyInsights` records the
+/// specific facts the model found and used, for transparency in the UI —
+/// empty when search turned up nothing useful.
+model CoverLetter {
+  id              String            @id @default(uuid()) @db.Uuid
+  userId          String            @map("user_id") @db.Uuid
+  user            User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cvId            String            @map("cv_id") @db.Uuid
+  cv              Cv                @relation(fields: [cvId], references: [id], onDelete: Cascade)
+  jobOfferId      String            @map("job_offer_id") @db.Uuid
+  jobOffer        JobOffer          @relation(fields: [jobOfferId], references: [id], onDelete: Cascade)
+  status          CoverLetterStatus @default(PROCESSING)
+  errorMessage    String?           @map("error_message")
+  content         String?
+  companyInsights Json              @default("[]") @map("company_insights")
+  createdAt       DateTime          @default(now()) @map("created_at")
+  updatedAt       DateTime          @updatedAt @map("updated_at")
+
+  @@unique([cvId, jobOfferId])
+  @@index([userId])
+  @@map("cover_letters")
+}
+
+enum PlanId {
+  FREE
+  ESSENTIAL
+  PRO
+  /// Unlimited internal plan — never purchasable via Stripe, granted manually.
+  VIP
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  TRIALING
+  PAST_DUE
+  CANCELED
+  INCOMPLETE
+}
+
+/// Billing + AI usage credits for one user. Every AI action (CV parsing, job
+/// offer parsing, ATS analysis, tailored CV generation — see
+/// src/lib/billing/plans.ts for the exact credit cost of each) checks and
+/// decrements `creditsRemaining` before calling Claude. `creditsResetAt` is
+/// checked lazily on every read (see src/lib/billing/credits.ts) so no cron
+/// job is needed to refill monthly allowances; the Stripe webhook also
+/// resets it precisely on each paid renewal. Free-tier users get a row here
+/// too (created lazily on first use), just with no Stripe ids.
+model Subscription {
+  id                   String             @id @default(uuid()) @db.Uuid
+  userId               String             @unique @map("user_id") @db.Uuid
+  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan                 PlanId             @default(FREE)
+  status               SubscriptionStatus @default(ACTIVE)
+  stripeCustomerId     String?            @unique @map("stripe_customer_id")
+  stripeSubscriptionId String?            @unique @map("stripe_subscription_id")
+  stripePriceId        String?            @map("stripe_price_id")
+  cancelAtPeriodEnd    Boolean            @default(false) @map("cancel_at_period_end")
+  creditsRemaining     Int                @map("credits_remaining")
+  creditsResetAt       DateTime           @map("credits_reset_at")
+  /// Total credits ever consumed (never reset) — drives lifetime-usage
+  /// badges/rewards (see src/lib/badges/catalog.ts), independent of the
+  /// monthly `creditsRemaining` allowance.
+  creditsUsedLifetime  Int                @default(0) @map("credits_used_lifetime")
+  /// Timestamp of the last credit-consuming AI action, used only to enforce
+  /// a short per-user cooldown (see consumeCredits in src/lib/billing/credits.ts)
+  /// against scripted bursts — invisible at normal human typing/click speed.
+  lastAiActionAt       DateTime?          @map("last_ai_action_at")
+  createdAt            DateTime           @default(now()) @map("created_at")
+  updatedAt            DateTime           @updatedAt @map("updated_at")
+
+  @@map("subscriptions")
+}
+
+/// One signup attempt's source IP, kept only long enough to rate-limit
+/// account creation (see registerAction in src/lib/actions/auth.ts) —
+/// never linked to a user row, no RLS policies (server-only table, nothing
+/// reads or writes it from a browser Supabase client).
+model RegistrationAttempt {
+  id        String   @id @default(uuid()) @db.Uuid
+  ipAddress String   @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([ipAddress, createdAt])
+  @@map("registration_attempts")
+}
+
+/// One badge a user has earned (see src/lib/badges/catalog.ts for the
+/// catalog of badge ids, criteria, and any associated reward). Earning is
+/// idempotent — `checkAndAwardBadges` upserts on (userId, badgeId), so a
+/// badge is granted (and its one-time reward, if any, applied) exactly once.
+model UserBadge {
+  id       String   @id @default(uuid()) @db.Uuid
+  userId   String   @map("user_id") @db.Uuid
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badgeId  String   @map("badge_id")
+  earnedAt DateTime @default(now()) @map("earned_at")
+
+  @@unique([userId, badgeId])
+  @@map("user_badges")
+}

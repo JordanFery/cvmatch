@@ -1,0 +1,2 @@
+ALTER TABLE "cvs" ADD COLUMN "is_favorite" BOOLEAN NOT NULL DEFAULT false;
+ALTER TABLE "job_offers" ADD COLUMN "is_favorite" BOOLEAN NOT NULL DEFAULT false;
