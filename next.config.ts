@@ -73,8 +73,13 @@ const nextConfig: NextConfig = {
   // pdfjs-dist (used by pdf-parse) dynamically imports its worker script by
   // file path at runtime; bundling it breaks that resolution ("Setting up
   // fake worker failed"). Keeping it external lets Node load it straight
-  // from node_modules, where the worker file actually exists.
-  serverExternalPackages: ["pdf-parse", "pdfjs-dist"],
+  // from node_modules, where the worker file actually exists. @napi-rs/canvas
+  // (pdf-parse's own dependency, used in src/lib/cv/extract-text.ts to
+  // polyfill the DOMMatrix global pdfjs-dist needs in Node) ships a native
+  // .node binding loader that Turbopack can't bundle into an ESM chunk at
+  // all ("non-ecmascript placeable asset") — same fix, load it straight
+  // from node_modules instead of trying to bundle it.
+  serverExternalPackages: ["pdf-parse", "pdfjs-dist", "@napi-rs/canvas"],
   experimental: {
     serverActions: {
       // CV uploads go straight to a Server Action as FormData; the default
