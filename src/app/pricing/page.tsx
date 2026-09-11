@@ -21,7 +21,7 @@ export default async function PricingPage() {
 
   return (
     <div className="flex min-h-full flex-col">
-      <LandingNavbar dict={dict} locale={locale} />
+      <LandingNavbar dict={dict} locale={locale} isAuthenticated={!!user} />
       <main className="flex-1">
         <div className="mx-auto max-w-5xl px-4 py-16 sm:px-6">
           <div className="mx-auto max-w-2xl text-center">

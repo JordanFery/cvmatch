@@ -1,8 +1,9 @@
 import { ArrowRight, Sparkles } from "lucide-react";
 import { ButtonLink } from "@/components/ui/button-link";
+import { HeroShowcase } from "@/components/landing/hero-showcase";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
 
-export function LandingHero({ dict }: { dict: Dictionary }) {
+export function LandingHero({ dict, isAuthenticated = false }: { dict: Dictionary; isAuthenticated?: boolean }) {
   return (
     <section className="relative overflow-hidden">
       <div
@@ -26,14 +27,25 @@ export function LandingHero({ dict }: { dict: Dictionary }) {
         </p>
 
         <div className="animate-in fade-in slide-in-from-bottom-4 mt-10 flex flex-col gap-3 duration-700 sm:flex-row delay-[450ms] fill-mode-[both]">
-          <ButtonLink href="/register" size="lg">
-            {dict.hero.ctaPrimary}
-            <ArrowRight className="size-4" aria-hidden="true" />
-          </ButtonLink>
-          <ButtonLink href="/login" size="lg" variant="outline">
-            {dict.hero.ctaSecondary}
-          </ButtonLink>
+          {isAuthenticated ? (
+            <ButtonLink href="/dashboard" size="lg">
+              {dict.hero.ctaAuthenticated}
+              <ArrowRight className="size-4" aria-hidden="true" />
+            </ButtonLink>
+          ) : (
+            <>
+              <ButtonLink href="/register" size="lg">
+                {dict.hero.ctaPrimary}
+                <ArrowRight className="size-4" aria-hidden="true" />
+              </ButtonLink>
+              <ButtonLink href="/login" size="lg" variant="outline">
+                {dict.hero.ctaSecondary}
+              </ButtonLink>
+            </>
+          )}
         </div>
+
+        <HeroShowcase dict={dict} />
       </div>
     </section>
   );

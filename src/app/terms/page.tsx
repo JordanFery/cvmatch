@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { LandingNavbar } from "@/components/landing/navbar";
 import { LandingFooter } from "@/components/landing/footer";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
+import { getAuthUser } from "@/lib/data/profile";
 import { SUPPORT_EMAIL, LEGAL_ENTITY_NAME } from "@/lib/legal/site";
 
 export const metadata: Metadata = {
@@ -13,11 +14,11 @@ export const metadata: Metadata = {
 const LAST_UPDATED = "10 septembre 2026";
 
 export default async function TermsPage() {
-  const { dict, locale } = await getDictionary();
+  const [{ dict, locale }, user] = await Promise.all([getDictionary(), getAuthUser()]);
 
   return (
     <div className="flex min-h-full flex-col">
-      <LandingNavbar dict={dict} locale={locale} />
+      <LandingNavbar dict={dict} locale={locale} isAuthenticated={!!user} />
       <main className="flex-1">
         <div className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
           <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Conditions d&apos;utilisation</h1>

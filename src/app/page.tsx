@@ -10,6 +10,7 @@ import { LandingCta } from "@/components/landing/cta-section";
 import { LandingFooter } from "@/components/landing/footer";
 import { PUBLIC_PLANS } from "@/lib/billing/plans";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
+import { getAuthUser } from "@/lib/data/profile";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
@@ -44,7 +45,7 @@ function structuredData() {
 }
 
 export default async function HomePage() {
-  const { dict, locale } = await getDictionary();
+  const [{ dict, locale }, user] = await Promise.all([getDictionary(), getAuthUser()]);
 
   return (
     <div className="flex min-h-full flex-col">
@@ -52,15 +53,15 @@ export default async function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData()) }}
       />
-      <LandingNavbar dict={dict} locale={locale} />
+      <LandingNavbar dict={dict} locale={locale} isAuthenticated={!!user} />
       <main className="flex-1">
-        <LandingHero dict={dict} />
+        <LandingHero dict={dict} isAuthenticated={!!user} />
         <LandingProblem dict={dict} />
         <LandingHowItWorks dict={dict} />
         <LandingFeatures dict={dict} />
         <LandingProductPreview dict={dict} />
         <LandingPricingTeaser dict={dict} />
-        <LandingCta dict={dict} />
+        <LandingCta dict={dict} isAuthenticated={!!user} />
       </main>
       <LandingFooter dict={dict} />
     </div>

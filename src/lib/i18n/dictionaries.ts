@@ -16,6 +16,7 @@ const fr = {
     login: "Se connecter",
     register: "Commencer gratuitement",
     pricing: "Tarifs",
+    dashboard: "Tableau de bord",
   },
   hero: {
     eyebrow: "L'IA qui adapte votre CV à chaque offre d'emploi",
@@ -25,6 +26,43 @@ const fr = {
       "CVMatch analyse chaque offre, adapte votre CV aux mots-clés recherchés et centralise toutes vos candidatures — pour postuler plus, mieux, et plus vite.",
     ctaPrimary: "Commencer gratuitement",
     ctaSecondary: "Se connecter",
+    ctaAuthenticated: "Accéder à mon tableau de bord",
+  },
+  heroShowcase: {
+    cv: {
+      tabLabel: "Mon CV",
+      name: "Camille Dubois",
+      title: "Développeuse Frontend",
+      experienceLabel: "Expérience",
+      experience1: "Développeuse Frontend — NovaSoft",
+      experience2: "Stage développement web — StudioPixel",
+      skillsLabel: "Compétences",
+      doneLabel: "CV importé",
+    },
+    job: {
+      tabLabel: "Nouvelle offre",
+      pasteLabel: "Coller le lien de l'offre…",
+      jobTitle: "Développeur Frontend",
+      jobCompany: "TechCorp",
+      jobLocation: "Paris, France · Hybride",
+      doneLabel: "Offre importée",
+    },
+    ats: {
+      tabLabel: "Analyse ATS",
+      subtitle: "Offre TechCorp — Développeur Frontend",
+      matchedLabel: "Compétences correspondantes",
+      missingLabel: "Compétences manquantes",
+    },
+    tracking: {
+      tabLabel: "Mes candidatures",
+      activeLabel: "candidatures actives",
+      company1: "TechCorp",
+      company2: "Innovatech",
+      company3: "Digital Solutions",
+      statusSent: "Envoyée",
+      statusInterview: "Entretien",
+      statusReplied: "Répondu",
+    },
   },
   problem: {
     title: "Chercher un emploi ne devrait pas être un travail à temps plein",
@@ -89,6 +127,7 @@ const fr = {
   cta: {
     title: "Prêt à optimiser votre prochaine candidature ?",
     button: "Créer mon compte",
+    buttonAuthenticated: "Accéder à mon tableau de bord",
   },
   footer: {
     links: {
@@ -170,6 +209,7 @@ const en: typeof fr = {
     login: "Log in",
     register: "Start for free",
     pricing: "Pricing",
+    dashboard: "Dashboard",
   },
   hero: {
     eyebrow: "The AI that tailors your resume to every job posting",
@@ -179,6 +219,43 @@ const en: typeof fr = {
       "CVMatch analyzes every job posting, tailors your resume to the keywords that matter, and keeps every application in one place — so you can apply more, better, and faster.",
     ctaPrimary: "Start for free",
     ctaSecondary: "Log in",
+    ctaAuthenticated: "Go to my dashboard",
+  },
+  heroShowcase: {
+    cv: {
+      tabLabel: "My resume",
+      name: "Camille Dubois",
+      title: "Frontend Developer",
+      experienceLabel: "Experience",
+      experience1: "Frontend Developer — NovaSoft",
+      experience2: "Web development intern — StudioPixel",
+      skillsLabel: "Skills",
+      doneLabel: "Resume imported",
+    },
+    job: {
+      tabLabel: "New job posting",
+      pasteLabel: "Paste the job posting link…",
+      jobTitle: "Frontend Developer",
+      jobCompany: "TechCorp",
+      jobLocation: "Paris, France · Hybrid",
+      doneLabel: "Posting imported",
+    },
+    ats: {
+      tabLabel: "ATS analysis",
+      subtitle: "TechCorp posting — Frontend Developer",
+      matchedLabel: "Matched skills",
+      missingLabel: "Missing skills",
+    },
+    tracking: {
+      tabLabel: "My applications",
+      activeLabel: "active applications",
+      company1: "TechCorp",
+      company2: "Innovatech",
+      company3: "Digital Solutions",
+      statusSent: "Sent",
+      statusInterview: "Interview",
+      statusReplied: "Replied",
+    },
   },
   problem: {
     title: "Job hunting shouldn't be a full-time job",
@@ -243,6 +320,7 @@ const en: typeof fr = {
   cta: {
     title: "Ready to optimize your next application?",
     button: "Create my account",
+    buttonAuthenticated: "Go to my dashboard",
   },
   footer: {
     links: {

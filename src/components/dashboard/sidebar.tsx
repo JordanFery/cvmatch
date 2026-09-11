@@ -30,7 +30,7 @@ export function Sidebar({
   return (
     <aside className="hidden w-64 shrink-0 flex-col border-r border-sidebar-border bg-sidebar md:flex">
       <div className="flex h-14 items-center justify-between border-b border-sidebar-border px-4">
-        <Link href="/dashboard" className="flex items-center gap-2 font-semibold tracking-tight text-sidebar-foreground">
+        <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight text-sidebar-foreground">
           <span className="flex size-6 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground">
             <FileText className="size-3.5" aria-hidden="true" />
           </span>

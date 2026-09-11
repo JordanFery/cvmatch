@@ -107,7 +107,7 @@ export const PLANS: Record<PlanIdValue, Plan> = {
     stripePriceEnvVar: "STRIPE_PRICE_ESSENTIAL",
     features: [
       "100 crédits IA par mois",
-      "~10 CV adaptés générés par mois",
+      "Jusqu'à 33 CV adaptés ou lettres de motivation par mois",
       "Analyses ATS illimitées dans la limite des crédits",
       "Support par e-mail",
     ],
@@ -123,7 +123,7 @@ export const PLANS: Record<PlanIdValue, Plan> = {
     highlighted: true,
     features: [
       "300 crédits IA par mois",
-      "~30 CV adaptés générés par mois",
+      "Jusqu'à 100 CV adaptés ou lettres de motivation par mois",
       "Traitement prioritaire",
       "Support par e-mail",
     ],
