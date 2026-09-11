@@ -80,7 +80,7 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
+const GA_ID = process.env.GA_ID;
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const { locale } = await getDictionary();
