@@ -89,10 +89,10 @@ export const PLANS: Record<PlanIdValue, Plan> = {
     name: "Gratuit",
     priceLabel: "0 $ CA",
     priceCents: 0,
-    monthlyCredits: 10,
+    monthlyCredits: 20,
     description: "Pour découvrir CVMatch.",
     features: [
-      "10 crédits IA par mois",
+      "20 crédits IA par mois",
       "CV maître et offres illimités",
       "Suivi des candidatures",
     ],
