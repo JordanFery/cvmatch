@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/terms" },
 };
 
-const LAST_UPDATED = "10 septembre 2026";
+const LAST_UPDATED = "12 septembre 2026";
 
 export default async function TermsPage() {
   const [{ dict, locale }, user] = await Promise.all([getDictionary(), getAuthUser()]);
@@ -28,8 +28,9 @@ export default async function TermsPage() {
             <section className="space-y-3">
               <h2 className="text-lg font-semibold">1. Objet</h2>
               <p className="text-muted-foreground">
-                Les présentes conditions régissent l&apos;utilisation du service CVMatch, exploité par{" "}
-                {LEGAL_ENTITY_NAME}. En créant un compte, vous acceptez ces conditions dans leur intégralité.
+                Les présentes conditions régissent l&apos;utilisation du service CVMatch, édité par{" "}
+                {LEGAL_ENTITY_NAME}, à titre personnel (particulier, sans société enregistrée), basé à Montréal,
+                Québec, Canada. En créant un compte, vous acceptez ces conditions dans leur intégralité.
               </p>
             </section>
 
@@ -66,6 +67,11 @@ export default async function TermsPage() {
                   en cours.
                 </li>
                 <li>Les crédits non utilisés en fin de mois ne sont pas reportés au mois suivant.</li>
+                <li>
+                  Les prix affichés sont <span className="font-medium text-foreground">hors taxes</span> ; les
+                  taxes applicables (TPS/TVQ ou équivalent selon votre lieu de résidence) sont ajoutées au moment
+                  du paiement.
+                </li>
                 <li>Les paiements sont traités par Stripe ; nous ne stockons aucune donnée de carte bancaire.</li>
               </ul>
             </section>
@@ -124,8 +130,9 @@ export default async function TermsPage() {
             <section className="space-y-3">
               <h2 className="text-lg font-semibold">10. Droit applicable</h2>
               <p className="text-muted-foreground">
-                Ces conditions sont régies par le droit applicable au lieu d&apos;établissement de{" "}
-                {LEGAL_ENTITY_NAME}. Tout litige sera soumis aux tribunaux compétents de cette juridiction.
+                Ces conditions sont régies par les lois de la province de Québec et les lois fédérales du Canada
+                qui s&apos;y appliquent. Tout litige sera soumis aux tribunaux compétents du district de Montréal,
+                Québec.
               </p>
             </section>
 

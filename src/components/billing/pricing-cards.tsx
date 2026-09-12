@@ -29,7 +29,7 @@ export function PricingCards({
               <CardDescription>{plan.description}</CardDescription>
               <p className="pt-2">
                 <span className="text-3xl font-semibold">{plan.priceLabel}</span>
-                {plan.priceCents > 0 && <span className="text-muted-foreground"> / mois</span>}
+                {plan.priceCents > 0 && <span className="text-muted-foreground"> / mois, hors taxes</span>}
               </p>
             </CardHeader>
             <CardContent>

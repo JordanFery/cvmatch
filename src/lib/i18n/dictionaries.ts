@@ -138,6 +138,7 @@ const fr = {
       privacy: "Confidentialité",
       terms: "Conditions d'utilisation",
     },
+    manageCookies: "Gérer les cookies",
   },
   auth: {
     login: {
@@ -331,6 +332,7 @@ const en: typeof fr = {
       privacy: "Privacy",
       terms: "Terms of service",
     },
+    manageCookies: "Manage cookies",
   },
   auth: {
     login: {

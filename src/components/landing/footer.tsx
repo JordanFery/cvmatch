@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
+import { ManageCookiesLink } from "@/components/manage-cookies-link";
 
 export function LandingFooter({ dict }: { dict: Dictionary }) {
   const links = [
@@ -21,6 +22,7 @@ export function LandingFooter({ dict }: { dict: Dictionary }) {
               {link.label}
             </Link>
           ))}
+          <ManageCookiesLink label={dict.footer.manageCookies} />
         </nav>
       </div>
     </footer>

@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/privacy" },
 };
 
-const LAST_UPDATED = "10 septembre 2026";
+const LAST_UPDATED = "12 septembre 2026";
 
 export default async function PrivacyPage() {
   const [{ dict, locale }, user] = await Promise.all([getDictionary(), getAuthUser()]);
@@ -28,9 +28,10 @@ export default async function PrivacyPage() {
             <section className="space-y-3">
               <h2 className="text-lg font-semibold">1. Qui sommes-nous</h2>
               <p className="text-muted-foreground">
-                CVMatch (exploité par {LEGAL_ENTITY_NAME}) est un service qui vous aide à adapter votre CV et vos
-                candidatures aux offres d&apos;emploi. Cette politique explique quelles données nous collectons,
-                pourquoi, et comment vous pouvez les contrôler.
+                CVMatch est un service édité par {LEGAL_ENTITY_NAME}, à titre personnel (particulier, sans société
+                enregistrée), basé à Montréal, Québec, Canada, qui vous aide à adapter votre CV et vos candidatures
+                aux offres d&apos;emploi. Cette politique explique quelles données nous collectons, pourquoi, et
+                comment vous pouvez les contrôler.
               </p>
             </section>
 
@@ -57,7 +58,13 @@ export default async function PrivacyPage() {
                 </li>
                 <li>
                   <span className="font-medium text-foreground">Cookies techniques</span> : session
-                  d&apos;authentification, langue et thème choisis — pas de cookies publicitaires.
+                  d&apos;authentification, langue et thème choisis — toujours actifs, nécessaires au
+                  fonctionnement du site.
+                </li>
+                <li>
+                  <span className="font-medium text-foreground">Cookies d&apos;analyse</span> (Google Analytics) :
+                  déposés uniquement si vous les acceptez via le bandeau affiché lors de votre première visite —
+                  jamais de cookies publicitaires.
                 </li>
               </ul>
             </section>
@@ -103,7 +110,8 @@ export default async function PrivacyPage() {
                 </li>
                 <li>
                   <span className="font-medium text-foreground">Google Analytics</span> — statistiques
-                  d&apos;usage anonymisées, uniquement si cet outil est activé sur le site.
+                  d&apos;usage anonymisées, uniquement si vous avez donné votre consentement via le bandeau de
+                  cookies.
                 </li>
               </ul>
             </section>
@@ -130,7 +138,18 @@ export default async function PrivacyPage() {
                   </a>
                   .
                 </li>
-                <li>Vous opposer à un traitement ou déposer une réclamation auprès de l&apos;autorité compétente.</li>
+                <li>
+                  Vous opposer à un traitement ou déposer une réclamation auprès de la{" "}
+                  <a
+                    href="https://www.cai.gouv.qc.ca/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-medium text-foreground hover:underline"
+                  >
+                    Commission d&apos;accès à l&apos;information du Québec (CAI)
+                  </a>
+                  , l&apos;autorité compétente pour la protection des renseignements personnels au Québec.
+                </li>
               </ul>
             </section>
 

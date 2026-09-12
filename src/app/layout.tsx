@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Poppins, Geist_Mono } from "next/font/google";
-import { GoogleAnalytics } from "@next/third-parties/google";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
+import { CookieConsentBanner } from "@/components/cookie-consent-banner";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import "./globals.css";
 
@@ -95,9 +95,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           {children}
           <Toaster />
+          <CookieConsentBanner gaId={GA_ID} />
         </ThemeProvider>
       </body>
-      {GA_ID && <GoogleAnalytics gaId={GA_ID} />}
     </html>
   );
 }
