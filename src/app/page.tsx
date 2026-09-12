@@ -11,8 +11,7 @@ import { LandingFooter } from "@/components/landing/footer";
 import { PUBLIC_PLANS } from "@/lib/billing/plans";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { getAuthUser } from "@/lib/data/profile";
-
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+import { SITE_URL } from "@/lib/site-url";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { dict } = await getDictionary();

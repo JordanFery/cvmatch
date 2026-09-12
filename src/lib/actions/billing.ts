@@ -6,12 +6,9 @@ import { getOrCreateSubscription } from "@/lib/billing/credits";
 import { getStripePriceId, type PlanIdValue } from "@/lib/billing/plans";
 import { prisma } from "@/lib/prisma";
 import { getStripe } from "@/lib/stripe";
+import { SITE_URL } from "@/lib/site-url";
 
 type ActionResult = { error: string };
-
-function siteUrl() {
-  return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-}
 
 async function getOrCreateStripeCustomerId(userId: string, email: string): Promise<string> {
   const subscription = await getOrCreateSubscription(userId);
@@ -35,8 +32,8 @@ export async function createCheckoutSessionAction(planId: PlanIdValue): Promise<
     customer: customerId,
     client_reference_id: user.id,
     line_items: [{ price: getStripePriceId(planId), quantity: 1 }],
-    success_url: `${siteUrl()}/dashboard/billing?checkout=success`,
-    cancel_url: `${siteUrl()}/dashboard/billing?checkout=cancelled`,
+    success_url: `${SITE_URL}/dashboard/billing?checkout=success`,
+    cancel_url: `${SITE_URL}/dashboard/billing?checkout=cancelled`,
     metadata: { userId: user.id, planId },
     subscription_data: { metadata: { userId: user.id, planId } },
   });
@@ -58,7 +55,7 @@ export async function createPortalSessionAction(): Promise<ActionResult | void> 
 
   const session = await getStripe().billingPortal.sessions.create({
     customer: subscription.stripeCustomerId,
-    return_url: `${siteUrl()}/dashboard/billing`,
+    return_url: `${SITE_URL}/dashboard/billing`,
   });
 
   redirect(session.url);

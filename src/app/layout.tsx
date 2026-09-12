@@ -4,6 +4,7 @@ import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
 import { CookieConsentBanner } from "@/components/cookie-consent-banner";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
+import { SITE_URL } from "@/lib/site-url";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -17,7 +18,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 const SITE_NAME = "CVMatch";
 
 export async function generateMetadata(): Promise<Metadata> {

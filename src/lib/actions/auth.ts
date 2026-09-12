@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { loginSchema, registerSchema, type LoginInput, type RegisterInput } from "@/lib/validations/auth";
 import { createClient } from "@/lib/supabase/server";
 import { prisma } from "@/lib/prisma";
+import { SITE_URL } from "@/lib/site-url";
 
 type ActionResult = { error: string } | { success: true };
 type RegisterResult = { error: string } | { success: true; needsEmailConfirmation: boolean };
@@ -51,10 +52,6 @@ function mapAuthError(message: string): string {
   return known[message] ?? message;
 }
 
-function siteUrl() {
-  return process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
-}
-
 export async function registerAction(input: RegisterInput): Promise<RegisterResult> {
   const parsed = registerSchema.safeParse(input);
   if (!parsed.success) {
@@ -78,7 +75,7 @@ export async function registerAction(input: RegisterInput): Promise<RegisterResu
     password,
     options: {
       data: { first_name: firstName, last_name: lastName },
-      emailRedirectTo: `${siteUrl()}/auth/callback`,
+      emailRedirectTo: `${SITE_URL}/auth/callback`,
     },
   });
 

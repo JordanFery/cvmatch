@@ -6,6 +6,7 @@ export function LandingFooter({ dict }: { dict: Dictionary }) {
   const links = [
     { label: dict.footer.links.features, href: "#" },
     { label: dict.footer.links.pricing, href: "/pricing" },
+    { label: dict.footer.links.blog, href: "/blog" },
     { label: dict.footer.links.about, href: "#" },
     { label: dict.footer.links.contact, href: "/contact" },
     { label: dict.footer.links.privacy, href: "/privacy" },
