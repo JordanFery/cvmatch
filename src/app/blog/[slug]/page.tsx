@@ -11,6 +11,12 @@ import { SITE_URL } from "@/lib/site-url";
 import { QuestCeQuUnAts } from "@/content/blog/quest-ce-qu-un-ats";
 import { AdapterSonCvAChaqueOffre } from "@/content/blog/adapter-son-cv-a-chaque-offre";
 import { PourquoiVotreCvEstRejeteAvantDetreLu } from "@/content/blog/pourquoi-votre-cv-est-rejete-avant-detre-lu";
+import { LettreDeMotivationAvecIa } from "@/content/blog/lettre-de-motivation-avec-ia";
+import { CombienDeCandidaturesParJour } from "@/content/blog/combien-de-candidatures-par-jour";
+import { OrganiserSonSuiviDeCandidatures } from "@/content/blog/organiser-son-suivi-de-candidatures";
+import { IaEtCvCeQuilFautSavoir } from "@/content/blog/ia-et-cv-ce-quil-faut-savoir";
+import { CvFrancaisVsAnglaisCanada } from "@/content/blog/cv-francais-vs-anglais-canada";
+import { RelancerUnRecruteurApresUneCandidature } from "@/content/blog/relancer-un-recruteur-apres-une-candidature";
 
 // Static import per post rather than a dynamic component map — with only a
 // handful of articles this stays simple and fully type-checked; a CMS or
@@ -20,6 +26,12 @@ const CONTENT: Record<string, () => React.ReactElement> = {
   "quest-ce-qu-un-ats": QuestCeQuUnAts,
   "adapter-son-cv-a-chaque-offre": AdapterSonCvAChaqueOffre,
   "pourquoi-votre-cv-est-rejete-avant-detre-lu": PourquoiVotreCvEstRejeteAvantDetreLu,
+  "lettre-de-motivation-avec-ia": LettreDeMotivationAvecIa,
+  "combien-de-candidatures-par-jour": CombienDeCandidaturesParJour,
+  "organiser-son-suivi-de-candidatures": OrganiserSonSuiviDeCandidatures,
+  "ia-et-cv-ce-quil-faut-savoir": IaEtCvCeQuilFautSavoir,
+  "cv-francais-vs-anglais-canada": CvFrancaisVsAnglaisCanada,
+  "relancer-un-recruteur-apres-une-candidature": RelancerUnRecruteurApresUneCandidature,
 };
 
 export function generateStaticParams() {

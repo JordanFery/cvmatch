@@ -35,6 +35,54 @@ export const BLOG_POSTS: BlogPostMeta[] = [
     publishedAt: "2026-09-15",
     readingTimeMinutes: 7,
   },
+  {
+    slug: "lettre-de-motivation-avec-ia",
+    title: "Rédiger une lettre de motivation avec l'IA sans qu'elle sonne générique",
+    description:
+      "La plupart des lettres générées par IA se ressemblent toutes. Voici ce qui fait vraiment la différence, et comment l'IA peut aider sans produire un texte interchangeable.",
+    publishedAt: "2026-09-16",
+    readingTimeMinutes: 5,
+  },
+  {
+    slug: "combien-de-candidatures-par-jour",
+    title: "Combien de candidatures faut-il envoyer par jour ?",
+    description:
+      "Le volume ne compense pas la qualité. Un repère réaliste pour avancer sans s'épuiser, et pourquoi perdre le fil coûte souvent plus cher que le manque de candidatures.",
+    publishedAt: "2026-09-16",
+    readingTimeMinutes: 4,
+  },
+  {
+    slug: "organiser-son-suivi-de-candidatures",
+    title: "Comment organiser son suivi quand on a plusieurs candidatures en cours",
+    description:
+      "Tableur, boîte mail, onglets ouverts partout : le système que beaucoup finissent par utiliser, et pourquoi il craque dès que la recherche s'intensifie.",
+    publishedAt: "2026-09-16",
+    readingTimeMinutes: 5,
+  },
+  {
+    slug: "ia-et-cv-ce-quil-faut-savoir",
+    title: "Faut-il utiliser l'intelligence artificielle pour son CV ?",
+    description:
+      "Le vrai risque n'est pas l'IA elle-même, c'est ce qu'on lui demande de faire. Ce qui distingue un usage utile d'un usage qui peut se retourner contre vous en entretien.",
+    publishedAt: "2026-09-16",
+    readingTimeMinutes: 5,
+  },
+  {
+    slug: "cv-francais-vs-anglais-canada",
+    title: "CV en français ou en anglais : que choisir pour postuler au Canada ?",
+    description:
+      "La réponse dépend de l'entreprise, du secteur et de la région. Quelques repères concrets pour trancher, et l'erreur la plus fréquente à éviter.",
+    publishedAt: "2026-09-16",
+    readingTimeMinutes: 5,
+  },
+  {
+    slug: "relancer-un-recruteur-apres-une-candidature",
+    title: "Comment relancer un recruteur sans paraître insistant",
+    description:
+      "Beaucoup de candidatures se perdent simplement dans le volume reçu par un recruteur. Quand relancer, comment le faire, et pourquoi c'est surtout une question d'organisation.",
+    publishedAt: "2026-09-16",
+    readingTimeMinutes: 4,
+  },
 ];
 
 export function getBlogPost(slug: string): BlogPostMeta | undefined {
