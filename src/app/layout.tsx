@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { CookieConsentBanner } from "@/components/cookie-consent-banner";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { SITE_URL } from "@/lib/site-url";
+import { Analytics } from "@vercel/analytics/next"
 import "./globals.css";
 
 const poppins = Poppins({
