@@ -97,6 +97,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           {children}
           <Toaster />
           <CookieConsentBanner gaId={GA_ID} />
+          <Analytics />
         </ThemeProvider>
       </body>
     </html>
