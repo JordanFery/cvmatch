@@ -17,6 +17,7 @@ import { OrganiserSonSuiviDeCandidatures } from "@/content/blog/organiser-son-su
 import { IaEtCvCeQuilFautSavoir } from "@/content/blog/ia-et-cv-ce-quil-faut-savoir";
 import { CvFrancaisVsAnglaisCanada } from "@/content/blog/cv-francais-vs-anglais-canada";
 import { RelancerUnRecruteurApresUneCandidature } from "@/content/blog/relancer-un-recruteur-apres-une-candidature";
+import { CvReconversionProfessionnelle } from "@/content/blog/cv-reconversion-professionnelle";
 
 // Static import per post rather than a dynamic component map — with only a
 // handful of articles this stays simple and fully type-checked; a CMS or
@@ -32,6 +33,7 @@ const CONTENT: Record<string, () => React.ReactElement> = {
   "ia-et-cv-ce-quil-faut-savoir": IaEtCvCeQuilFautSavoir,
   "cv-francais-vs-anglais-canada": CvFrancaisVsAnglaisCanada,
   "relancer-un-recruteur-apres-une-candidature": RelancerUnRecruteurApresUneCandidature,
+  "cv-reconversion-professionnelle": CvReconversionProfessionnelle,
 };
 
 export function generateStaticParams() {

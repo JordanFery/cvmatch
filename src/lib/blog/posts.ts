@@ -83,6 +83,14 @@ export const BLOG_POSTS: BlogPostMeta[] = [
     publishedAt: "2026-09-16",
     readingTimeMinutes: 4,
   },
+  {
+    slug: "cv-reconversion-professionnelle",
+    title: "CV pour une reconversion professionnelle : comment valoriser une expérience différente",
+    description:
+      "Changer de métier ne veut pas dire repartir de zéro. Comment identifier ce qui se transfère réellement d'un parcours à l'autre, sans jamais exagérer ce qu'il contient.",
+    publishedAt: "2026-09-17",
+    readingTimeMinutes: 5,
+  },
 ];
 
 export function getBlogPost(slug: string): BlogPostMeta | undefined {
