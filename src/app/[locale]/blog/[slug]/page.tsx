@@ -4,10 +4,12 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { LandingNavbar } from "@/components/landing/navbar";
 import { LandingFooter } from "@/components/landing/footer";
-import { getDictionary } from "@/lib/i18n/get-dictionary";
+import { dictionaries } from "@/lib/i18n/dictionaries";
+import { isLocale } from "@/lib/i18n/config";
 import { getAuthUser } from "@/lib/data/profile";
 import { BLOG_POSTS, getBlogPost } from "@/lib/blog/posts";
 import { SITE_URL } from "@/lib/site-url";
+import { localeAlternates } from "@/lib/i18n/alternates";
 import { QuestCeQuUnAts } from "@/content/blog/quest-ce-qu-un-ats";
 import { AdapterSonCvAChaqueOffre } from "@/content/blog/adapter-son-cv-a-chaque-offre";
 import { PourquoiVotreCvEstRejeteAvantDetreLu } from "@/content/blog/pourquoi-votre-cv-est-rejete-avant-detre-lu";
@@ -36,23 +38,25 @@ const CONTENT: Record<string, () => React.ReactElement> = {
   "cv-reconversion-professionnelle": CvReconversionProfessionnelle,
 };
 
+type Params = { params: Promise<{ locale: string; slug: string }> };
+
+// French-only for now (see i18n plan A6) — only generate the fr × slug
+// combinations, never fr × en, so /en/blog/* correctly 404s via notFound()
+// below instead of Next.js trying to statically render it.
 export function generateStaticParams() {
-  return BLOG_POSTS.map((post) => ({ slug: post.slug }));
+  return BLOG_POSTS.map((post) => ({ locale: "fr", slug: post.slug }));
 }
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}): Promise<Metadata> {
-  const { slug } = await params;
+export async function generateMetadata({ params }: Params): Promise<Metadata> {
+  const { locale, slug } = await params;
+  if (locale !== "fr") return {};
   const post = getBlogPost(slug);
   if (!post) return {};
 
   return {
     title: post.title,
     description: post.description,
-    alternates: { canonical: `/blog/${post.slug}` },
+    alternates: localeAlternates("fr", `/blog/${post.slug}`),
     openGraph: {
       type: "article",
       title: post.title,
@@ -74,17 +78,19 @@ function structuredData(post: NonNullable<ReturnType<typeof getBlogPost>>) {
     description: post.description,
     datePublished: post.publishedAt,
     author: { "@type": "Organization", name: "CVMatch" },
-    url: `${SITE_URL}/blog/${post.slug}`,
+    url: `${SITE_URL}/fr/blog/${post.slug}`,
   };
 }
 
-export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
+export default async function BlogPostPage({ params }: Params) {
+  const { locale, slug } = await params;
+  if (!isLocale(locale) || locale !== "fr") notFound();
   const post = getBlogPost(slug);
   const Content = CONTENT[slug];
   if (!post || !Content) notFound();
 
-  const [{ dict, locale }, user] = await Promise.all([getDictionary(), getAuthUser()]);
+  const dict = dictionaries.fr;
+  const user = await getAuthUser();
 
   return (
     <div className="flex min-h-full flex-col">
@@ -96,7 +102,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       <main className="flex-1">
         <article className="mx-auto max-w-3xl px-4 py-16 sm:px-6">
           <Link
-            href="/blog"
+            href="/fr/blog"
             className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="size-3.5" aria-hidden="true" />
@@ -113,7 +119,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           </div>
         </article>
       </main>
-      <LandingFooter dict={dict} />
+      <LandingFooter dict={dict} locale={locale} />
     </div>
   );
 }

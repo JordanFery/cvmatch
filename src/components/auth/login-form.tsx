@@ -11,8 +11,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
+import { localeHref, type Locale } from "@/lib/i18n/config";
 
-export function LoginForm({ redirectTo, dict }: { redirectTo?: string; dict: Dictionary }) {
+export function LoginForm({
+  redirectTo,
+  dict,
+  locale,
+}: {
+  redirectTo?: string;
+  dict: Dictionary;
+  locale: Locale;
+}) {
   const t = dict.auth.login;
   const [isPending, startTransition] = useTransition();
   const [formError, setFormError] = useState<string | null>(null);
@@ -90,7 +99,7 @@ export function LoginForm({ redirectTo, dict }: { redirectTo?: string; dict: Dic
 
           <p className="text-center text-sm text-muted-foreground">
             {t.noAccount}{" "}
-            <Link href="/register" className="font-medium text-foreground hover:underline">
+            <Link href={localeHref(locale, "/register")} className="font-medium text-foreground hover:underline">
               {t.createAccount}
             </Link>
           </p>

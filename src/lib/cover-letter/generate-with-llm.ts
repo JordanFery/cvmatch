@@ -5,6 +5,7 @@ import { coverLetterDataSchema, type CoverLetterData } from "@/lib/validations/c
 import { formatCvForAnalysis, formatJobOfferForAnalysis } from "@/lib/ats/format";
 import type { ParsedCv } from "@/lib/validations/cv";
 import type { JobOfferData } from "@/lib/validations/job-offer";
+import type { Locale } from "@/lib/i18n/config";
 import { reportError } from "@/lib/monitoring/alert";
 
 // Enforced by the "server-only" import above (build fails if a Client
@@ -20,17 +21,28 @@ function getClient(): Anthropic {
   return client;
 }
 
-const SYSTEM_PROMPT = `You write a personalized, professional cover letter in French for a candidate applying to a specific job posting.
+function systemPrompt(locale: Locale): string {
+  const conventionsRule =
+    locale === "fr"
+      ? `Write the entire letter in French, following formal French business-letter conventions ("vous" throughout, "Madame, Monsieur," opening, a professional closing such as "Je vous prie d'agréer, Madame, Monsieur, l'expression de mes salutations distinguées." or "Cordialement," followed by the candidate's name).`
+      : `Write the entire letter in English, following formal North American business-letter conventions ("Dear Hiring Manager," or the hiring contact's name if known, a professional closing such as "Sincerely," or "Best regards," followed by the candidate's name).`;
+  const headerRule =
+    locale === "fr"
+      ? `Start the letter with a short header block: the candidate's name and the contact details actually given (only the ones present — never invent a missing one), the date given to you, the company name, and a line "Objet : Candidature au poste de {job title}". Then a blank line, then the salutation and body.`
+      : `Start the letter with a short header block: the candidate's name and the contact details actually given (only the ones present — never invent a missing one), the date given to you, the company name, and a line "Re: Application for the {job title} position". Then a blank line, then the salutation and body.`;
+
+  return `You write a personalized, professional cover letter for a candidate applying to a specific job posting.
 
 Hard rules — never break these:
-- Write the entire letter in French, following formal French business-letter conventions ("vous" throughout, "Madame, Monsieur," opening, a professional closing such as "Je vous prie d'agréer, Madame, Monsieur, l'expression de mes salutations distinguées." or "Cordialement," followed by the candidate's name).
-- Start the letter with a short header block: the candidate's name and the contact details actually given (only the ones present — never invent a missing one), the date given to you, the company name, and a line "Objet : Candidature au poste de {job title}". Then a blank line, then the salutation and body.
+- ${conventionsRule}
+- ${headerRule}
 - Base every claim about the candidate strictly on the CV provided. Never invent skills, experience, achievements, or qualifications that aren't in the CV.
 - Use the web_search and web_fetch tools to find genuine, current, relevant facts about the company — its mission, products/services, recent news, culture, values — ideally from the company's own official website. Use these facts to show authentic, specific interest in this company, not generic enthusiasm.
 - Only state a company fact if you actually found it via search/fetch or it was already given in the job posting text. If search turns up nothing useful or reliable, write a strong letter anchored on the job posting and candidate fit alone — never invent or guess a company detail.
 - companyInsights: list the specific factual points about the company you found via search/fetch and used in the letter. Empty array if none were found or used.
 - Body: 3-4 paragraphs, roughly 250-400 words — why this company specifically (grounded in what you found), why this candidate fits this role (grounded in real CV content), and a brief call to action.
 - content: the complete letter as a single string, ready to send, including the header block described above, with paragraphs separated by blank lines.`;
+}
 
 /**
  * Writes a cover letter for the given CV/job pairing. Searches the web for
@@ -44,11 +56,12 @@ export async function generateCoverLetter(
   jobOffer: JobOfferData,
   companyName: string | null,
   sourceUrl: string | null,
+  locale: Locale,
 ): Promise<CoverLetterData | null> {
   const cvText = formatCvForAnalysis(cv);
   const jobText = formatJobOfferForAnalysis(jobOffer);
   const candidateName = [cv.personalInfo.firstName, cv.personalInfo.lastName].filter(Boolean).join(" ") || "the candidate";
-  const today = new Intl.DateTimeFormat("fr-FR", { dateStyle: "long" }).format(new Date());
+  const today = new Intl.DateTimeFormat(locale === "fr" ? "fr-FR" : "en-US", { dateStyle: "long" }).format(new Date());
 
   const sourceUrlNote = sourceUrl
     ? `\n\nThe original job posting was found at this URL, which may help you identify the right company: ${sourceUrl}`
@@ -72,7 +85,7 @@ export async function generateCoverLetter(
         const response = await getClient().messages.parse({
           model: "claude-opus-5",
           max_tokens: 4096,
-          system: SYSTEM_PROMPT,
+          system: systemPrompt(locale),
           tools: [
             { type: "web_search_20260209", name: "web_search", max_uses: 3 },
             { type: "web_fetch_20260209", name: "web_fetch", max_uses: 3 },

@@ -1,20 +1,34 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import Link from "next/link";
 import { LandingNavbar } from "@/components/landing/navbar";
 import { LandingFooter } from "@/components/landing/footer";
-import { getDictionary } from "@/lib/i18n/get-dictionary";
+import { dictionaries } from "@/lib/i18n/dictionaries";
+import { isLocale } from "@/lib/i18n/config";
 import { getAuthUser } from "@/lib/data/profile";
 import { SUPPORT_EMAIL, LEGAL_ENTITY_NAME } from "@/lib/legal/site";
+import { localeAlternates } from "@/lib/i18n/alternates";
 
-export const metadata: Metadata = {
-  title: "Conditions d'utilisation",
-  description: "Les conditions d'utilisation du service CVMatch.",
-  alternates: { canonical: "/terms" },
-};
+type Params = { params: Promise<{ locale: string }> };
+
+// French-only for now — see the note in [locale]/privacy/page.tsx.
+export async function generateMetadata({ params }: Params): Promise<Metadata> {
+  const { locale } = await params;
+  if (locale !== "fr") return {};
+  return {
+    title: "Conditions d'utilisation",
+    description: "Les conditions d'utilisation du service CVMatch.",
+    alternates: localeAlternates("fr", "/terms"),
+  };
+}
 
 const LAST_UPDATED = "12 septembre 2026";
 
-export default async function TermsPage() {
-  const [{ dict, locale }, user] = await Promise.all([getDictionary(), getAuthUser()]);
+export default async function TermsPage({ params }: Params) {
+  const { locale } = await params;
+  if (!isLocale(locale) || locale !== "fr") notFound();
+  const dict = dictionaries.fr;
+  const user = await getAuthUser();
 
   return (
     <div className="flex min-h-full flex-col">
@@ -50,9 +64,9 @@ export default async function TermsPage() {
                 adapté, lettre de motivation) consommant des crédits, ainsi qu&apos;un suivi de candidatures. Le
                 forfait gratuit inclut un nombre limité de crédits mensuels ; les forfaits payants en incluent
                 davantage, selon les modalités affichées sur la page{" "}
-                <a href="/pricing" className="font-medium text-foreground hover:underline">
+                <Link href="/fr/pricing" className="font-medium text-foreground hover:underline">
                   Tarifs
-                </a>
+                </Link>
                 .
               </p>
             </section>
@@ -157,7 +171,7 @@ export default async function TermsPage() {
           </div>
         </div>
       </main>
-      <LandingFooter dict={dict} />
+      <LandingFooter dict={dict} locale={locale} />
     </div>
   );
 }

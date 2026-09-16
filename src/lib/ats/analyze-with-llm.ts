@@ -5,6 +5,7 @@ import { atsAnalysisDataSchema, type AtsAnalysisData } from "@/lib/validations/a
 import { formatCvForAnalysis, formatJobOfferForAnalysis } from "@/lib/ats/format";
 import type { ParsedCv } from "@/lib/validations/cv";
 import type { JobOfferData } from "@/lib/validations/job-offer";
+import type { Locale } from "@/lib/i18n/config";
 import { reportError } from "@/lib/monitoring/alert";
 
 // Enforced by the "server-only" import above (build fails if a Client
@@ -20,10 +21,16 @@ function getClient(): Anthropic {
   return client;
 }
 
-const SYSTEM_PROMPT = `You are an ATS (Applicant Tracking System) compatibility analyst. You compare a candidate's CV against a job posting and report how well they match, using only the information given.
+function systemPrompt(locale: Locale): string {
+  const languageRule =
+    locale === "fr"
+      ? `Write every text field (summary, strengths, gaps, recommendations) in French, regardless of what language the CV or job posting are written in. Keep proper nouns, technology/tool names, and skill names exactly as they're commonly written (e.g. "React", "Google Analytics") rather than translating them.`
+      : `Write every text field (summary, strengths, gaps, recommendations) in English, regardless of what language the CV or job posting are written in. Keep proper nouns, technology/tool names, and skill names exactly as they're commonly written (e.g. "React", "Google Analytics") rather than translating them.`;
+
+  return `You are an ATS (Applicant Tracking System) compatibility analyst. You compare a candidate's CV against a job posting and report how well they match, using only the information given.
 
 Hard rules — never break these:
-- Write every text field (summary, strengths, gaps, recommendations) in French, regardless of what language the CV or job posting are written in. Keep proper nouns, technology/tool names, and skill names exactly as they're commonly written (e.g. "React", "Google Analytics") rather than translating them.
+- ${languageRule}
 - Base every finding strictly on the CV and job posting text provided. Never invent skills, experience, or requirements that aren't stated in either document.
 - matchedSkills: skills/technologies/qualifications the job asks for that the CV genuinely demonstrates (from experience, skills lists, or projects).
 - missingSkills: skills/technologies/qualifications the job explicitly asks for (requirements or key skills) that the CV does not demonstrate anywhere. Do not list a skill as missing if it only appears in "nice to have" and the CV shows related/transferable experience — use judgment, but stay grounded in what's written.
@@ -32,13 +39,18 @@ Hard rules — never break these:
 - recommendations: 3-5 specific, actionable suggestions for how the candidate could improve their match for THIS posting (e.g. highlight a specific existing experience differently, learn a specific missing tool) — grounded in the actual gap, not generic platitudes.
 - score: an integer 0-100 reflecting overall fit, weighted mainly by how many hard requirements and key skills are covered. A score of 100 means the CV covers essentially everything asked; a low score means major required skills/experience are absent. Be honest and calibrated, not inflated.
 - summary: 2-3 sentences giving the candidate a clear, honest read on their fit for this role.`;
+}
 
 /**
  * Compares structured CV data against a structured job offer and returns a
  * validated ATS-style compatibility analysis. Returns `null` if the model's
  * output doesn't validate after a retry, or the request fails.
  */
-export async function analyzeAtsCompatibility(cv: ParsedCv, jobOffer: JobOfferData): Promise<AtsAnalysisData | null> {
+export async function analyzeAtsCompatibility(
+  cv: ParsedCv,
+  jobOffer: JobOfferData,
+  locale: Locale,
+): Promise<AtsAnalysisData | null> {
   const cvText = formatCvForAnalysis(cv);
   const jobText = formatJobOfferForAnalysis(jobOffer);
 
@@ -47,7 +59,7 @@ export async function analyzeAtsCompatibility(cv: ParsedCv, jobOffer: JobOfferDa
       const response = await getClient().messages.parse({
         model: "claude-opus-5",
         max_tokens: 4096,
-        system: SYSTEM_PROMPT,
+        system: systemPrompt(locale),
         output_config: {
           effort: "medium",
           format: zodOutputFormat(atsAnalysisDataSchema),

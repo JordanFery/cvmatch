@@ -8,6 +8,7 @@ import { prisma } from "@/lib/prisma";
 import { generateCoverLetter } from "@/lib/cover-letter/generate-with-llm";
 import { consumeCredits } from "@/lib/billing/credits";
 import { checkAndAwardBadges } from "@/lib/badges/check";
+import { getLocale } from "@/lib/i18n/get-locale";
 
 type ActionResult = { error: string } | { success: true };
 
@@ -51,7 +52,8 @@ export async function generateCoverLetterAction(jobOfferId: string): Promise<Act
     keySkills: asStringArray(jobOffer.keySkills),
   };
 
-  const result = await generateCoverLetter(cv.parsedData, jobOfferData, jobOffer.company, jobOffer.sourceUrl);
+  const locale = await getLocale();
+  const result = await generateCoverLetter(cv.parsedData, jobOfferData, jobOffer.company, jobOffer.sourceUrl, locale);
 
   await prisma.coverLetter.update({
     where: { cvId_jobOfferId: { cvId: cv.id, jobOfferId } },

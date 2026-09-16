@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { LandingNavbar } from "@/components/landing/navbar";
 import { LandingHero } from "@/components/landing/hero";
 import { LandingProblem } from "@/components/landing/problem";
@@ -9,16 +10,22 @@ import { LandingPricingTeaser } from "@/components/landing/pricing-teaser";
 import { LandingCta } from "@/components/landing/cta-section";
 import { LandingFooter } from "@/components/landing/footer";
 import { PUBLIC_PLANS } from "@/lib/billing/plans";
-import { getDictionary } from "@/lib/i18n/get-dictionary";
+import { dictionaries } from "@/lib/i18n/dictionaries";
+import { isLocale } from "@/lib/i18n/config";
 import { getAuthUser } from "@/lib/data/profile";
 import { SITE_URL } from "@/lib/site-url";
+import { localeAlternates } from "@/lib/i18n/alternates";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const { dict } = await getDictionary();
+type Params = { params: Promise<{ locale: string }> };
+
+export async function generateMetadata({ params }: Params): Promise<Metadata> {
+  const { locale } = await params;
+  if (!isLocale(locale)) return {};
+  const dict = dictionaries[locale];
   return {
     title: dict.meta.title,
     description: dict.meta.description,
-    alternates: { canonical: "/" },
+    alternates: localeAlternates(locale, ""),
   };
 }
 
@@ -43,8 +50,11 @@ function structuredData() {
   };
 }
 
-export default async function HomePage() {
-  const [{ dict, locale }, user] = await Promise.all([getDictionary(), getAuthUser()]);
+export default async function HomePage({ params }: Params) {
+  const { locale } = await params;
+  if (!isLocale(locale)) notFound();
+  const dict = dictionaries[locale];
+  const user = await getAuthUser();
 
   return (
     <div className="flex min-h-full flex-col">
@@ -54,15 +64,15 @@ export default async function HomePage() {
       />
       <LandingNavbar dict={dict} locale={locale} isAuthenticated={!!user} />
       <main className="flex-1">
-        <LandingHero dict={dict} isAuthenticated={!!user} />
+        <LandingHero dict={dict} locale={locale} isAuthenticated={!!user} />
         <LandingProblem dict={dict} />
         <LandingHowItWorks dict={dict} />
         <LandingFeatures dict={dict} />
         <LandingProductPreview dict={dict} />
-        <LandingPricingTeaser dict={dict} />
-        <LandingCta dict={dict} isAuthenticated={!!user} />
+        <LandingPricingTeaser dict={dict} locale={locale} />
+        <LandingCta dict={dict} locale={locale} isAuthenticated={!!user} />
       </main>
-      <LandingFooter dict={dict} />
+      <LandingFooter dict={dict} locale={locale} />
     </div>
   );
 }

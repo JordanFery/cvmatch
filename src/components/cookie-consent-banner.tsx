@@ -5,6 +5,24 @@ import Link from "next/link";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { Button } from "@/components/ui/button";
 import { ANALYTICS_CONSENT_KEY, type AnalyticsConsent } from "@/lib/cookie-consent";
+import type { Locale } from "@/lib/i18n/config";
+
+const COPY: Record<Locale, { accept: string; decline: string; privacyLink: string; before: string; after: string }> = {
+  fr: {
+    before: "Nous utilisons des cookies d'analyse (Google Analytics) pour comprendre l'utilisation du site. Vous pouvez accepter ou refuser — voir notre",
+    privacyLink: "politique de confidentialité",
+    after: ".",
+    decline: "Refuser",
+    accept: "Accepter",
+  },
+  en: {
+    before: "We use analytics cookies (Google Analytics) to understand how the site is used. You can accept or decline — see our",
+    privacyLink: "privacy policy",
+    after: ".",
+    decline: "Decline",
+    accept: "Accept",
+  },
+};
 
 function readStoredConsent(): AnalyticsConsent | null {
   try {
@@ -23,7 +41,8 @@ function readStoredConsent(): AnalyticsConsent | null {
  * avoiding a server/client mismatch flash rather than assuming "no
  * consent yet" during the first paint.
  */
-export function CookieConsentBanner({ gaId }: { gaId?: string }) {
+export function CookieConsentBanner({ gaId, locale }: { gaId?: string; locale: Locale }) {
+  const copy = COPY[locale];
   const [consent, setConsent] = useState<AnalyticsConsent | null>(null);
   const [ready, setReady] = useState(false);
 
@@ -52,19 +71,18 @@ export function CookieConsentBanner({ gaId }: { gaId?: string }) {
         <div className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 backdrop-blur">
           <div className="mx-auto flex max-w-4xl flex-col items-center gap-3 px-4 py-4 sm:flex-row sm:justify-between sm:px-6">
             <p className="text-sm text-muted-foreground">
-              Nous utilisons des cookies d&apos;analyse (Google Analytics) pour comprendre l&apos;utilisation du
-              site. Vous pouvez accepter ou refuser — voir notre{" "}
-              <Link href="/privacy" className="font-medium text-foreground hover:underline">
-                politique de confidentialité
+              {copy.before}{" "}
+              <Link href="/fr/privacy" className="font-medium text-foreground hover:underline">
+                {copy.privacyLink}
               </Link>
-              .
+              {copy.after}
             </p>
             <div className="flex shrink-0 gap-2">
               <Button type="button" variant="outline" size="sm" onClick={() => choose("denied")}>
-                Refuser
+                {copy.decline}
               </Button>
               <Button type="button" size="sm" onClick={() => choose("granted")}>
-                Accepter
+                {copy.accept}
               </Button>
             </div>
           </div>

@@ -55,7 +55,7 @@ export function CvFrancaisVsAnglaisCanada() {
       <div className="rounded-lg border border-border bg-muted/40 p-6">
         <p className="text-foreground">
           Adaptez votre CV à la bonne langue et à la bonne offre :{" "}
-          <Link href="/register" className="font-medium underline underline-offset-4">
+          <Link href="/fr/register" className="font-medium underline underline-offset-4">
             créez un compte gratuit
           </Link>
           .

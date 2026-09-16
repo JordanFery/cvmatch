@@ -2,8 +2,17 @@ import { ArrowRight, Sparkles } from "lucide-react";
 import { ButtonLink } from "@/components/ui/button-link";
 import { HeroShowcase } from "@/components/landing/hero-showcase";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
+import { localeHref, type Locale } from "@/lib/i18n/config";
 
-export function LandingHero({ dict, isAuthenticated = false }: { dict: Dictionary; isAuthenticated?: boolean }) {
+export function LandingHero({
+  dict,
+  locale,
+  isAuthenticated = false,
+}: {
+  dict: Dictionary;
+  locale: Locale;
+  isAuthenticated?: boolean;
+}) {
   return (
     <section className="relative overflow-hidden">
       <div
@@ -34,11 +43,11 @@ export function LandingHero({ dict, isAuthenticated = false }: { dict: Dictionar
             </ButtonLink>
           ) : (
             <>
-              <ButtonLink href="/register" size="lg">
+              <ButtonLink href={localeHref(locale, "/register")} size="lg">
                 {dict.hero.ctaPrimary}
                 <ArrowRight className="size-4" aria-hidden="true" />
               </ButtonLink>
-              <ButtonLink href="/login" size="lg" variant="outline">
+              <ButtonLink href={localeHref(locale, "/login")} size="lg" variant="outline">
                 {dict.hero.ctaSecondary}
               </ButtonLink>
             </>

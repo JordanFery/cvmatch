@@ -5,14 +5,51 @@ import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button-link";
 import { CheckoutButton } from "@/components/billing/checkout-button";
 import { cn } from "@/lib/utils";
+import { localeHref, type Locale } from "@/lib/i18n/config";
+
+// UI chrome only — plan name/description/features (PUBLIC_PLANS) stay French
+// for both locales for now; translating the plan catalog itself is a
+// separate, larger content task (see i18n plan follow-ups).
+const COPY: Record<
+  Locale,
+  {
+    popular: string;
+    currentPlan: string;
+    startFree: string;
+    createAccount: string;
+    continueWithPlan: string;
+    switchTo: (planName: string) => string;
+  }
+> = {
+  fr: {
+    popular: "Populaire",
+    currentPlan: "Forfait actuel",
+    startFree: "Commencer gratuitement",
+    createAccount: "Créer mon compte",
+    continueWithPlan: "Continuer avec ce forfait",
+    switchTo: (planName) => `Passer à ${planName}`,
+  },
+  en: {
+    popular: "Popular",
+    currentPlan: "Current plan",
+    startFree: "Start for free",
+    createAccount: "Create my account",
+    continueWithPlan: "Continue with this plan",
+    switchTo: (planName) => `Switch to ${planName}`,
+  },
+};
 
 export function PricingCards({
   isAuthenticated,
   currentPlan,
+  locale,
 }: {
   isAuthenticated: boolean;
   currentPlan?: PlanIdValue;
+  locale: Locale;
 }) {
+  const copy = COPY[locale];
+
   return (
     <div className="grid gap-6 sm:grid-cols-3">
       {PUBLIC_PLANS.map((plan) => {
@@ -23,13 +60,17 @@ export function PricingCards({
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>{plan.name}</CardTitle>
-                {plan.highlighted && <Badge variant="tertiary">Populaire</Badge>}
-                {isCurrent && <Badge variant="secondary">Forfait actuel</Badge>}
+                {plan.highlighted && <Badge variant="tertiary">{copy.popular}</Badge>}
+                {isCurrent && <Badge variant="secondary">{copy.currentPlan}</Badge>}
               </div>
               <CardDescription>{plan.description}</CardDescription>
               <p className="pt-2">
                 <span className="text-3xl font-semibold">{plan.priceLabel}</span>
-                {plan.priceCents > 0 && <span className="text-muted-foreground"> / mois, hors taxes</span>}
+                {plan.priceCents > 0 && (
+                  <span className="text-muted-foreground">
+                    {locale === "fr" ? " / mois, hors taxes" : " / month, before tax"}
+                  </span>
+                )}
               </p>
             </CardHeader>
             <CardContent>
@@ -45,20 +86,24 @@ export function PricingCards({
             <CardFooter>
               {isCurrent ? (
                 <ButtonLink href="/dashboard/billing" variant="outline" className="w-full pointer-events-none opacity-60">
-                  Forfait actuel
+                  {copy.currentPlan}
                 </ButtonLink>
               ) : !isAuthenticated ? (
-                <ButtonLink href="/register" variant={plan.highlighted ? "default" : "outline"} className="w-full">
-                  {plan.id === "FREE" ? "Commencer gratuitement" : "Créer mon compte"}
+                <ButtonLink
+                  href={localeHref(locale, "/register")}
+                  variant={plan.highlighted ? "default" : "outline"}
+                  className="w-full"
+                >
+                  {plan.id === "FREE" ? copy.startFree : copy.createAccount}
                 </ButtonLink>
               ) : plan.id === "FREE" ? (
                 <ButtonLink href="/dashboard" variant="outline" className="w-full">
-                  Continuer avec ce forfait
+                  {copy.continueWithPlan}
                 </ButtonLink>
               ) : (
                 <CheckoutButton
                   planId={plan.id}
-                  label={`Passer à ${plan.name}`}
+                  label={copy.switchTo(plan.name)}
                   variant={plan.highlighted ? "default" : "outline"}
                 />
               )}

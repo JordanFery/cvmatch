@@ -49,7 +49,7 @@ export function CombienDeCandidaturesParJour() {
       <div className="rounded-lg border border-border bg-muted/40 p-6">
         <p className="text-foreground">
           Structurez votre recherche :{" "}
-          <Link href="/register" className="font-medium underline underline-offset-4">
+          <Link href="/fr/register" className="font-medium underline underline-offset-4">
             créez un compte gratuit
           </Link>{" "}
           et fixez votre premier objectif quotidien.

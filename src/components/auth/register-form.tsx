@@ -12,8 +12,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
+import { localeHref, type Locale } from "@/lib/i18n/config";
 
-export function RegisterForm({ dict }: { dict: Dictionary }) {
+export function RegisterForm({ dict, locale }: { dict: Dictionary; locale: Locale }) {
   const t = dict.auth.register;
   const [isPending, startTransition] = useTransition();
   const [formError, setFormError] = useState<string | null>(null);
@@ -158,7 +159,7 @@ export function RegisterForm({ dict }: { dict: Dictionary }) {
 
           <p className="text-center text-sm text-muted-foreground">
             {t.hasAccount}{" "}
-            <Link href="/login" className="font-medium text-foreground hover:underline">
+            <Link href={localeHref(locale, "/login")} className="font-medium text-foreground hover:underline">
               {t.login}
             </Link>
           </p>

@@ -8,6 +8,7 @@ import { analyzeAtsCompatibility } from "@/lib/ats/analyze-with-llm";
 import { consumeCredits } from "@/lib/billing/credits";
 import { checkAndAwardBadges } from "@/lib/badges/check";
 import type { AtsAnalysisData } from "@/lib/validations/ats-analysis";
+import { getLocale } from "@/lib/i18n/get-locale";
 
 type ActionResult = { error: string } | { success: true };
 
@@ -69,7 +70,8 @@ export async function analyzeJobOfferAction(jobOfferId: string): Promise<ActionR
     keySkills: Array.isArray(jobOffer.keySkills) ? (jobOffer.keySkills as string[]) : [],
   };
 
-  const result = await analyzeAtsCompatibility(cv.parsedData, jobOfferData);
+  const locale = await getLocale();
+  const result = await analyzeAtsCompatibility(cv.parsedData, jobOfferData, locale);
 
   await prisma.atsAnalysis.update({
     where: { cvId_jobOfferId: { cvId: cv.id, jobOfferId } },

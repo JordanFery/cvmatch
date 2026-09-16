@@ -68,7 +68,7 @@ export function QuestCeQuUnAts() {
       <div className="rounded-lg border border-border bg-muted/40 p-6">
         <p className="text-foreground">
           Envie de savoir où en est votre CV actuel ?{" "}
-          <Link href="/register" className="font-medium underline underline-offset-4">
+          <Link href="/fr/register" className="font-medium underline underline-offset-4">
             Créez un compte gratuit
           </Link>{" "}
           et obtenez votre premier score de compatibilité ATS en quelques minutes.

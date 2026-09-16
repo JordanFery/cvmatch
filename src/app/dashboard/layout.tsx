@@ -3,13 +3,22 @@ import { getCurrentProfile } from "@/lib/data/profile";
 import { getCurrentSubscription } from "@/lib/data/billing";
 import { PLANS } from "@/lib/billing/plans";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
+import { AppShell } from "@/components/app-shell";
 import { Sidebar } from "@/components/dashboard/sidebar";
 import { MobileTopbar } from "@/components/dashboard/mobile-topbar";
 import { UserMenu } from "@/components/dashboard/user-menu";
 import { CreditsIndicator } from "@/components/dashboard/credits-indicator";
+import { SITE_URL } from "@/lib/site-url";
 
 // Everything under /dashboard is private, per-user data — never indexable.
-export const metadata: Metadata = { robots: { index: false, follow: false } };
+// Not URL-localized (see i18n plan A1): no SEO reason to, since this whole
+// tree is already excluded from crawling below. metadataBase is set here
+// too (not just in [locale]/layout.tsx) since this is now its own
+// independent root layout — see the "multiple root layouts" note in A2.
+export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
+  robots: { index: false, follow: false },
+};
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   // Defense in depth: middleware already redirects unauthenticated visitors,
@@ -22,37 +31,39 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const unlimitedCredits = PLANS[subscription.plan].unlimited;
 
   return (
-    <div className="flex min-h-full bg-background print:block">
-      <div className="print:hidden">
-        <Sidebar
-          firstName={profile.firstName}
-          lastName={profile.lastName}
-          email={profile.email}
-          creditsRemaining={subscription.creditsRemaining}
-          unlimitedCredits={unlimitedCredits}
-          isAdmin={profile.isAdmin}
-          dict={dict}
-          locale={locale}
-        />
-      </div>
-      <div className="flex min-w-0 flex-1 flex-col print:block">
+    <AppShell lang={locale}>
+      <div className="flex min-h-full bg-background print:block">
         <div className="print:hidden">
-          <MobileTopbar
-            creditsIndicator={
-              <CreditsIndicator creditsRemaining={subscription.creditsRemaining} unlimited={unlimitedCredits} dict={dict} />
-            }
-            userMenu={
-              <UserMenu firstName={profile.firstName} lastName={profile.lastName} email={profile.email} dict={dict} />
-            }
+          <Sidebar
+            firstName={profile.firstName}
+            lastName={profile.lastName}
+            email={profile.email}
+            creditsRemaining={subscription.creditsRemaining}
+            unlimitedCredits={unlimitedCredits}
             isAdmin={profile.isAdmin}
             dict={dict}
             locale={locale}
           />
         </div>
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 print:p-0">
-          <div className="mx-auto w-full max-w-6xl">{children}</div>
-        </main>
+        <div className="flex min-w-0 flex-1 flex-col print:block">
+          <div className="print:hidden">
+            <MobileTopbar
+              creditsIndicator={
+                <CreditsIndicator creditsRemaining={subscription.creditsRemaining} unlimited={unlimitedCredits} dict={dict} />
+              }
+              userMenu={
+                <UserMenu firstName={profile.firstName} lastName={profile.lastName} email={profile.email} dict={dict} />
+              }
+              isAdmin={profile.isAdmin}
+              dict={dict}
+              locale={locale}
+            />
+          </div>
+          <main className="flex-1 p-4 sm:p-6 lg:p-8 print:p-0">
+            <div className="mx-auto w-full max-w-6xl">{children}</div>
+          </main>
+        </div>
       </div>
-    </div>
+    </AppShell>
   );
 }

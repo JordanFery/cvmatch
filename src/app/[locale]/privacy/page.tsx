@@ -1,20 +1,35 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { LandingNavbar } from "@/components/landing/navbar";
 import { LandingFooter } from "@/components/landing/footer";
-import { getDictionary } from "@/lib/i18n/get-dictionary";
+import { dictionaries } from "@/lib/i18n/dictionaries";
+import { isLocale } from "@/lib/i18n/config";
 import { getAuthUser } from "@/lib/data/profile";
 import { SUPPORT_EMAIL, LEGAL_ENTITY_NAME } from "@/lib/legal/site";
+import { localeAlternates } from "@/lib/i18n/alternates";
 
-export const metadata: Metadata = {
-  title: "Politique de confidentialité",
-  description: "Comment CVMatch collecte, utilise et protège vos données personnelles.",
-  alternates: { canonical: "/privacy" },
-};
+type Params = { params: Promise<{ locale: string }> };
+
+// French-only for now — this is a legal document; not machine-translating
+// it. English readers currently land here via /fr (see i18n plan scope
+// note: privacy/terms stay French-only alongside the blog, A6).
+export async function generateMetadata({ params }: Params): Promise<Metadata> {
+  const { locale } = await params;
+  if (locale !== "fr") return {};
+  return {
+    title: "Politique de confidentialité",
+    description: "Comment CVMatch collecte, utilise et protège vos données personnelles.",
+    alternates: localeAlternates("fr", "/privacy"),
+  };
+}
 
 const LAST_UPDATED = "12 septembre 2026";
 
-export default async function PrivacyPage() {
-  const [{ dict, locale }, user] = await Promise.all([getDictionary(), getAuthUser()]);
+export default async function PrivacyPage({ params }: Params) {
+  const { locale } = await params;
+  if (!isLocale(locale) || locale !== "fr") notFound();
+  const dict = dictionaries.fr;
+  const user = await getAuthUser();
 
   return (
     <div className="flex min-h-full flex-col">
@@ -191,7 +206,7 @@ export default async function PrivacyPage() {
           </div>
         </div>
       </main>
-      <LandingFooter dict={dict} />
+      <LandingFooter dict={dict} locale={locale} />
     </div>
   );
 }

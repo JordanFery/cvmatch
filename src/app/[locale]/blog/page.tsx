@@ -1,24 +1,38 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import Link from "next/link";
 import { LandingNavbar } from "@/components/landing/navbar";
 import { LandingFooter } from "@/components/landing/footer";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { getDictionary } from "@/lib/i18n/get-dictionary";
+import { dictionaries } from "@/lib/i18n/dictionaries";
+import { isLocale } from "@/lib/i18n/config";
 import { getAuthUser } from "@/lib/data/profile";
 import { BLOG_POSTS } from "@/lib/blog/posts";
+import { localeAlternates } from "@/lib/i18n/alternates";
 
-export const metadata: Metadata = {
-  title: "Blog",
-  description: "Conseils concrets pour optimiser votre CV, passer les filtres ATS et structurer votre recherche d'emploi.",
-  alternates: { canonical: "/blog" },
-};
+type Params = { params: Promise<{ locale: string }> };
+
+// French-only for now — articles are hand-authored French prose (see
+// src/content/blog/*.tsx), not dictionary-driven. See i18n plan A6.
+export async function generateMetadata({ params }: Params): Promise<Metadata> {
+  const { locale } = await params;
+  if (locale !== "fr") return {};
+  return {
+    title: "Blog",
+    description: "Conseils concrets pour optimiser votre CV, passer les filtres ATS et structurer votre recherche d'emploi.",
+    alternates: localeAlternates("fr", "/blog"),
+  };
+}
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("fr-CA", { year: "numeric", month: "long", day: "numeric" });
 }
 
-export default async function BlogIndexPage() {
-  const [{ dict, locale }, user] = await Promise.all([getDictionary(), getAuthUser()]);
+export default async function BlogIndexPage({ params }: Params) {
+  const { locale } = await params;
+  if (!isLocale(locale) || locale !== "fr") notFound();
+  const dict = dictionaries.fr;
+  const user = await getAuthUser();
   const posts = [...BLOG_POSTS].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
 
   return (
@@ -34,7 +48,7 @@ export default async function BlogIndexPage() {
 
           <div className="mt-10 grid gap-4 sm:grid-cols-2">
             {posts.map((post) => (
-              <Link key={post.slug} href={`/blog/${post.slug}`}>
+              <Link key={post.slug} href={`/fr/blog/${post.slug}`}>
                 <Card className="h-full transition-colors hover:border-foreground/30">
                   <CardHeader>
                     <p className="text-xs text-muted-foreground">
@@ -49,7 +63,7 @@ export default async function BlogIndexPage() {
           </div>
         </div>
       </main>
-      <LandingFooter dict={dict} />
+      <LandingFooter dict={dict} locale={locale} />
     </div>
   );
 }

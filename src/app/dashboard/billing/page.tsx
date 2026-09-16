@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { PageHeader } from "@/components/ui/page-header";
 import { PricingCards } from "@/components/billing/pricing-cards";
 import { PortalButton } from "@/components/billing/portal-button";
+import { getLocale } from "@/lib/i18n/get-locale";
 
 export const metadata: Metadata = { title: "Facturation" };
 
@@ -33,7 +34,7 @@ export default async function BillingPage({
   searchParams: Promise<{ checkout?: string }>;
 }) {
   const { checkout } = await searchParams;
-  const subscription = await getCurrentSubscription();
+  const [subscription, locale] = await Promise.all([getCurrentSubscription(), getLocale()]);
   const plan = PLANS[subscription.plan];
   const dateFormatter = new Intl.DateTimeFormat("fr-FR", { dateStyle: "long" });
 
@@ -89,7 +90,7 @@ export default async function BillingPage({
 
       <div>
         <h2 className="mb-4 text-lg font-medium">Changer de forfait</h2>
-        <PricingCards isAuthenticated currentPlan={subscription.plan} />
+        <PricingCards isAuthenticated currentPlan={subscription.plan} locale={locale} />
       </div>
     </div>
   );

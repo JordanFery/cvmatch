@@ -9,7 +9,7 @@ import { SidebarNav } from "@/components/dashboard/sidebar-nav";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
-import type { Locale } from "@/lib/i18n/config";
+import { localeHref, type Locale } from "@/lib/i18n/config";
 
 export function MobileTopbar({
   userMenu,
@@ -28,7 +28,7 @@ export function MobileTopbar({
 
   return (
     <header className="flex h-14 items-center justify-between border-b border-border bg-background px-4 md:hidden">
-      <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight">
+      <Link href={localeHref(locale)} className="flex items-center gap-2 font-semibold tracking-tight">
         <span className="flex size-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
           <FileText className="size-3.5" aria-hidden="true" />
         </span>

@@ -3,8 +3,9 @@ import { PUBLIC_PLANS } from "@/lib/billing/plans";
 import { ButtonLink } from "@/components/ui/button-link";
 import { cn } from "@/lib/utils";
 import type { Dictionary } from "@/lib/i18n/dictionaries";
+import { localeHref, type Locale } from "@/lib/i18n/config";
 
-export function LandingPricingTeaser({ dict }: { dict: Dictionary }) {
+export function LandingPricingTeaser({ dict, locale }: { dict: Dictionary; locale: Locale }) {
   return (
     <section className="border-t border-border/60 py-20">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
@@ -41,7 +42,7 @@ export function LandingPricingTeaser({ dict }: { dict: Dictionary }) {
         </div>
 
         <div className="mt-10 text-center">
-          <ButtonLink href="/pricing" variant="outline">
+          <ButtonLink href={localeHref(locale, "/pricing")} variant="outline">
             {dict.pricingTeaser.cta}
           </ButtonLink>
         </div>
