@@ -7,6 +7,8 @@ import { SITE_URL } from "@/lib/site-url";
 // separately below.
 const DUAL_LOCALE_PATHS: { path: string; changeFrequency: NonNullable<MetadataRoute.Sitemap[number]["changeFrequency"]>; priority: number }[] = [
   { path: "", changeFrequency: "weekly", priority: 1 },
+  // Flagship free-tool SEO entry point — see the growth strategy discussion.
+  { path: "/tools/ats-score", changeFrequency: "monthly", priority: 0.9 },
   { path: "/pricing", changeFrequency: "monthly", priority: 0.8 },
   { path: "/register", changeFrequency: "yearly", priority: 0.5 },
   { path: "/login", changeFrequency: "yearly", priority: 0.3 },

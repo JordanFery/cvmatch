@@ -133,6 +133,7 @@ const fr = {
     links: {
       features: "Fonctionnalités",
       pricing: "Tarifs",
+      atsChecker: "Vérificateur ATS gratuit",
       blog: "Blog",
       about: "À propos",
       contact: "Contact",
@@ -328,6 +329,7 @@ const en: typeof fr = {
     links: {
       features: "Features",
       pricing: "Pricing",
+      atsChecker: "Free ATS Checker",
       blog: "Blog",
       about: "About",
       contact: "Contact",

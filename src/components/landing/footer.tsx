@@ -7,13 +7,14 @@ export function LandingFooter({ dict, locale }: { dict: Dictionary; locale: Loca
   const links = [
     { label: dict.footer.links.features, href: "#" },
     { label: dict.footer.links.pricing, href: localeHref(locale, "/pricing") },
-    // French-only for now (see i18n plan A6 — blog content isn't translated
-    // yet) — link there explicitly rather than a 404 under /en.
+    { label: dict.footer.links.atsChecker, href: localeHref(locale, "/tools/ats-score") },
+    // French-only for now (see i18n plan A6 — blog/privacy/terms content
+    // isn't translated yet) — link there explicitly rather than a 404 under /en.
     { label: dict.footer.links.blog, href: "/fr/blog" },
     { label: dict.footer.links.about, href: "#" },
     { label: dict.footer.links.contact, href: localeHref(locale, "/contact") },
-    { label: dict.footer.links.privacy, href: localeHref(locale, "/privacy") },
-    { label: dict.footer.links.terms, href: localeHref(locale, "/terms") },
+    { label: dict.footer.links.privacy, href: "/fr/privacy" },
+    { label: dict.footer.links.terms, href: "/fr/terms" },
   ];
 
   return (

@@ -348,17 +348,19 @@ model Subscription {
   @@map("subscriptions")
 }
 
-/// One signup attempt's source IP, kept only long enough to rate-limit
-/// account creation (see registerAction in src/lib/actions/auth.ts) —
-/// never linked to a user row, no RLS policies (server-only table, nothing
-/// reads or writes it from a browser Supabase client).
-model RegistrationAttempt {
+/// One request's source IP against a named rate-limit bucket (e.g.
+/// "signup", "ats-score-tool"), kept only long enough to enforce a rolling
+/// window — see src/lib/rate-limit.ts. Never linked to a user row, no RLS
+/// policies (server-only table, nothing reads or writes it from a browser
+/// Supabase client). Replaces the narrower, signup-only RegistrationAttempt.
+model RateLimitAttempt {
   id        String   @id @default(uuid()) @db.Uuid
+  bucket    String
   ipAddress String   @map("ip_address")
   createdAt DateTime @default(now()) @map("created_at")
 
-  @@index([ipAddress, createdAt])
-  @@map("registration_attempts")
+  @@index([bucket, ipAddress, createdAt])
+  @@map("rate_limit_attempts")
 }
 
 /// One badge a user has earned (see src/lib/badges/catalog.ts for the
