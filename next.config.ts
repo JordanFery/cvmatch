@@ -45,9 +45,20 @@ const CSP = [
   [
     "connect-src 'self'",
     supabaseUrl,
+    // GA4's gtag.js loads fine with just googletagmanager.com in script-src,
+    // but the actual measurement hits it sends (page views, events) go to
+    // several other Google domains depending on region/config — without all
+    // of these in connect-src, the script loads but every single hit gets
+    // silently blocked by the browser, so GA shows zero data even with real,
+    // consenting visitors. Confirmed by inspecting actual blocked requests
+    // in production, not guessed from documentation alone.
     "https://www.google-analytics.com",
     "https://*.google-analytics.com",
     "https://www.googletagmanager.com",
+    "https://analytics.google.com",
+    "https://*.analytics.google.com",
+    "https://stats.g.doubleclick.net",
+    "https://www.google.com",
   ]
     .filter(Boolean)
     .join(" "),
