@@ -67,7 +67,7 @@ export function ExperienceSection() {
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
+            <div className="min-w-0 space-y-2">
               <Label>Réalisations</Label>
               <Controller
                 control={control}
@@ -75,7 +75,7 @@ export function ExperienceSection() {
                 render={({ field: f }) => <TagInput value={f.value} onChange={f.onChange} placeholder="Ajouter une réalisation" />}
               />
             </div>
-            <div className="space-y-2">
+            <div className="min-w-0 space-y-2">
               <Label>Technologies</Label>
               <Controller
                 control={control}

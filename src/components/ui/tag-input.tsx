@@ -35,7 +35,11 @@ export function TagInput({
   return (
     <div className="flex flex-wrap items-center gap-1.5 rounded-md border border-input bg-transparent px-2 py-1.5 focus-within:border-ring focus-within:ring-3 focus-within:ring-ring/50">
       {value.map((tag, index) => (
-        <Badge key={`${tag}-${index}`} variant="secondary" className="gap-1 pr-1">
+        <Badge
+          key={`${tag}-${index}`}
+          variant="secondary"
+          className="h-auto max-w-full min-w-0 shrink gap-1 overflow-visible py-1 pr-1 whitespace-normal wrap-break-word"
+        >
           {tag}
           <button
             type="button"
