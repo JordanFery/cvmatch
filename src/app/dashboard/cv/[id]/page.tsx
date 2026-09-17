@@ -5,6 +5,7 @@ import { updateCvDataAction } from "@/lib/actions/cv";
 import { CvEditor } from "@/components/cv/edit/cv-editor";
 import { CvStatusBadge } from "@/components/cv/cv-status-badge";
 import { DownloadOriginalButton } from "@/components/cv/download-original-button";
+import { DownloadPdfButton } from "@/components/cv/download-pdf-button";
 import { PageHeader } from "@/components/ui/page-header";
 
 export const metadata: Metadata = { title: "Modifier mon CV" };
@@ -22,6 +23,7 @@ export default async function EditCvPage({ params }: { params: Promise<{ id: str
         actions={
           <>
             <CvStatusBadge status={cv.status} />
+            {cv.status === "READY" && <DownloadPdfButton href={`/api/cv/${cv.id}/pdf`} />}
             {cv.storagePath && <DownloadOriginalButton cvId={cv.id} />}
           </>
         }

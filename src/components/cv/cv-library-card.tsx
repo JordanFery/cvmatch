@@ -7,6 +7,7 @@ import { CvStatusBadge } from "@/components/cv/cv-status-badge";
 import { ButtonLink } from "@/components/ui/button-link";
 import { DeleteCvDialog } from "@/components/cv/delete-cv-dialog";
 import { DownloadOriginalButton } from "@/components/cv/download-original-button";
+import { DownloadPdfButton } from "@/components/cv/download-pdf-button";
 import { SetMasterButton } from "@/components/cv/set-master-button";
 import { FavoriteButton } from "@/components/ui/favorite-button";
 
@@ -72,6 +73,7 @@ export function CvLibraryCard({
           Modifier
         </ButtonLink>
         {!cv.isMaster && cv.status === "READY" && <SetMasterButton cvId={cv.id} />}
+        {cv.status === "READY" && <DownloadPdfButton href={`/api/cv/${cv.id}/pdf`} />}
         {cv.storagePath && <DownloadOriginalButton cvId={cv.id} />}
         <DeleteCvDialog cvId={cv.id} />
       </CardFooter>

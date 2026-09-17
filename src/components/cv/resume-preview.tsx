@@ -14,7 +14,7 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   );
 }
 
-/** Print-oriented, read-only resume layout — no app chrome, meant to be exported via the browser's print dialog. */
+/** Read-only, print-styled on-screen preview of a resume — the actual downloadable PDF is a separate, real document, see src/lib/cv/pdf.tsx. */
 export function ResumePreview({ cv }: { cv: ParsedCv }) {
   const fullName = [cv.personalInfo.firstName, cv.personalInfo.lastName].filter(Boolean).join(" ");
   const contactLine = [
