@@ -168,6 +168,10 @@ const fr = {
       checkEmailTitle: "Vérifiez votre boîte mail",
       checkEmailDescription:
         "Nous vous avons envoyé un lien de confirmation. Cliquez dessus pour activer votre compte et accéder à votre tableau de bord.",
+      resend: "Renvoyer l'e-mail",
+      resending: "Envoi...",
+      resendSuccess: "E-mail renvoyé — pensez à vérifier vos spams.",
+      backToLogin: "Retour à la connexion",
     },
   },
   dashboardShell: {
@@ -364,6 +368,10 @@ const en: typeof fr = {
       checkEmailTitle: "Check your inbox",
       checkEmailDescription:
         "We've sent you a confirmation link. Click it to activate your account and access your dashboard.",
+      resend: "Resend email",
+      resending: "Sending...",
+      resendSuccess: "Email resent — check your spam folder too.",
+      backToLogin: "Back to login",
     },
   },
   dashboardShell: {

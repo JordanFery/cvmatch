@@ -7,6 +7,9 @@ import { toast } from "sonner";
 import { generateCoverLetterAction } from "@/lib/actions/cover-letter";
 import { Button } from "@/components/ui/button";
 import { AI_MESSAGES, AiLoadingHint } from "@/components/ui/ai-loading";
+import { CREDIT_COSTS } from "@/lib/billing/plans";
+
+const COST = CREDIT_COSTS.COVER_LETTER;
 
 export function GenerateCoverLetterButton({ jobOfferId, label }: { jobOfferId: string; label: string }) {
   const router = useRouter();
@@ -38,7 +41,13 @@ export function GenerateCoverLetterButton({ jobOfferId, label }: { jobOfferId: s
           </>
         )}
       </Button>
-      {isPending && <AiLoadingHint messages={AI_MESSAGES.coverLetter} />}
+      {isPending ? (
+        <AiLoadingHint messages={AI_MESSAGES.coverLetter} />
+      ) : (
+        <p className="text-xs text-muted-foreground">
+          Coûte {COST} crédit{COST > 1 ? "s" : ""}
+        </p>
+      )}
     </div>
   );
 }

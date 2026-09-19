@@ -7,6 +7,9 @@ import { toast } from "sonner";
 import { analyzeJobOfferAction } from "@/lib/actions/ats-analysis";
 import { Button } from "@/components/ui/button";
 import { AI_MESSAGES, AiLoadingHint } from "@/components/ui/ai-loading";
+import { CREDIT_COSTS } from "@/lib/billing/plans";
+
+const COST = CREDIT_COSTS.ATS_ANALYSIS;
 
 export function AnalyzeButton({ jobOfferId, label }: { jobOfferId: string; label: string }) {
   const router = useRouter();
@@ -38,7 +41,13 @@ export function AnalyzeButton({ jobOfferId, label }: { jobOfferId: string; label
           </>
         )}
       </Button>
-      {isPending && <AiLoadingHint messages={AI_MESSAGES.ats} />}
+      {isPending ? (
+        <AiLoadingHint messages={AI_MESSAGES.ats} />
+      ) : (
+        <p className="text-xs text-muted-foreground">
+          Coûte {COST} crédit{COST > 1 ? "s" : ""}
+        </p>
+      )}
     </div>
   );
 }

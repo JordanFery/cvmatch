@@ -17,7 +17,12 @@ function mapAuthError(message: string): string {
     "User already registered": "Un compte existe déjà avec cette adresse e-mail.",
     "Email not confirmed": "Veuillez confirmer votre e-mail avant de vous connecter.",
   };
-  return known[message] ?? message;
+  if (known[message]) return known[message];
+  // Any other Supabase message (network/config issues, unexpected cases) is
+  // often raw English/technical text — never show it directly in this
+  // French-only auth UI, log it instead so the real cause isn't lost.
+  console.error("[auth] unmapped Supabase error:", message);
+  return "Une erreur est survenue. Merci de réessayer.";
 }
 
 export async function registerAction(input: RegisterInput): Promise<RegisterResult> {
@@ -66,6 +71,29 @@ export async function registerAction(input: RegisterInput): Promise<RegisterResu
   }
 
   return { success: true, needsEmailConfirmation: true };
+}
+
+const MAX_RESEND_PER_IP_PER_HOUR = 5;
+
+/** Resends the signup confirmation e-mail — surfaced on the "check your inbox" screen so a lost/delayed e-mail isn't a dead end. */
+export async function resendConfirmationEmailAction(email: string): Promise<ActionResult> {
+  const ip = await clientIp();
+  if (ip !== "unknown" && !(await tryReserveSlot("resend-confirmation", ip, MAX_RESEND_PER_IP_PER_HOUR, 60 * 60 * 1000))) {
+    return { error: "Trop de tentatives. Merci de réessayer plus tard." };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.resend({
+    type: "signup",
+    email,
+    options: { emailRedirectTo: `${SITE_URL}/auth/callback` },
+  });
+
+  // Supabase errors for an unknown/already-confirmed address too — never
+  // reveal that distinction to the caller (account enumeration risk), just
+  // log it server-side.
+  if (error) console.error("[auth] resend confirmation failed:", error.message);
+  return { success: true };
 }
 
 export async function loginAction(input: LoginInput, redirectTo?: string): Promise<ActionResult> {

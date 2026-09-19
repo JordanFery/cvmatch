@@ -7,6 +7,9 @@ import { toast } from "sonner";
 import { generateTailoredCvAction } from "@/lib/actions/tailored-cv";
 import { Button } from "@/components/ui/button";
 import { AI_MESSAGES, AiLoadingHint } from "@/components/ui/ai-loading";
+import { CREDIT_COSTS } from "@/lib/billing/plans";
+
+const COST = CREDIT_COSTS.TAILORED_CV;
 
 export function GenerateTailoredCvButton({ jobOfferId, label }: { jobOfferId: string; label: string }) {
   const router = useRouter();
@@ -38,7 +41,13 @@ export function GenerateTailoredCvButton({ jobOfferId, label }: { jobOfferId: st
           </>
         )}
       </Button>
-      {isPending && <AiLoadingHint messages={AI_MESSAGES.tailoredCv} />}
+      {isPending ? (
+        <AiLoadingHint messages={AI_MESSAGES.tailoredCv} />
+      ) : (
+        <p className="text-xs text-muted-foreground">
+          Coûte {COST} crédit{COST > 1 ? "s" : ""}
+        </p>
+      )}
     </div>
   );
 }

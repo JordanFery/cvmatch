@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { Button } from "@/components/ui/button";
@@ -45,6 +45,8 @@ export function CookieConsentBanner({ gaId, locale }: { gaId?: string; locale: L
   const copy = COPY[locale];
   const [consent, setConsent] = useState<AnalyticsConsent | null>(null);
   const [ready, setReady] = useState(false);
+  const bannerRef = useRef<HTMLDivElement>(null);
+  const isVisible = ready && consent === null;
 
   useEffect(() => {
     const stored = readStoredConsent();
@@ -54,6 +56,29 @@ export function CookieConsentBanner({ gaId, locale }: { gaId?: string; locale: L
     }, 0);
     return () => clearTimeout(timer);
   }, []);
+
+  // The banner is `fixed` (so it stays visible while scrolling), which means
+  // it would otherwise float on top of whatever sits at the bottom of the
+  // viewport — e.g. the landing page's hero CTA on short mobile screens.
+  // Reserve that same height as body padding so the banner occupies its own
+  // space instead of overlapping interactive content.
+  useEffect(() => {
+    if (!isVisible || !bannerRef.current) {
+      document.body.style.paddingBottom = "";
+      return;
+    }
+    const el = bannerRef.current;
+    const applyHeight = () => {
+      document.body.style.paddingBottom = `${el.offsetHeight}px`;
+    };
+    applyHeight();
+    const observer = new ResizeObserver(applyHeight);
+    observer.observe(el);
+    return () => {
+      observer.disconnect();
+      document.body.style.paddingBottom = "";
+    };
+  }, [isVisible]);
 
   const choose = (value: AnalyticsConsent) => {
     try {
@@ -67,11 +92,17 @@ export function CookieConsentBanner({ gaId, locale }: { gaId?: string; locale: L
   return (
     <>
       {gaId && consent === "granted" && <GoogleAnalytics gaId={gaId} />}
-      {ready && consent === null && (
-        <div className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 backdrop-blur">
+      {isVisible && (
+        <div
+          ref={bannerRef}
+          className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 backdrop-blur"
+        >
           <div className="mx-auto flex max-w-4xl flex-col items-center gap-3 px-4 py-4 sm:flex-row sm:justify-between sm:px-6">
             <p className="text-sm text-muted-foreground">
               {copy.before}{" "}
+              {/* /privacy only exists in French today (see /[locale]/privacy/page.tsx) — linking to
+                  localeHref(locale, "/privacy") would 404 for English visitors, which is worse than
+                  linking to the French version. Revisit once the privacy page itself is translated. */}
               <Link href="/fr/privacy" className="font-medium text-foreground hover:underline">
                 {copy.privacyLink}
               </Link>

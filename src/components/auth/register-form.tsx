@@ -5,8 +5,9 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { MailCheck } from "lucide-react";
+import { toast } from "sonner";
 import { registerSchema, type RegisterInput } from "@/lib/validations/auth";
-import { registerAction } from "@/lib/actions/auth";
+import { registerAction, resendConfirmationEmailAction } from "@/lib/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +20,8 @@ export function RegisterForm({ dict, locale }: { dict: Dictionary; locale: Local
   const [isPending, startTransition] = useTransition();
   const [formError, setFormError] = useState<string | null>(null);
   const [emailSent, setEmailSent] = useState(false);
+  const [sentEmail, setSentEmail] = useState("");
+  const [isResending, startResendTransition] = useTransition();
 
   const {
     register,
@@ -38,8 +41,16 @@ export function RegisterForm({ dict, locale }: { dict: Dictionary; locale: Local
         return;
       }
       if (result.needsEmailConfirmation) {
+        setSentEmail(values.email);
         setEmailSent(true);
       }
+    });
+  };
+
+  const onResend = () => {
+    startResendTransition(async () => {
+      await resendConfirmationEmailAction(sentEmail);
+      toast.success(t.resendSuccess);
     });
   };
 
@@ -51,6 +62,14 @@ export function RegisterForm({ dict, locale }: { dict: Dictionary; locale: Local
           <CardTitle>{t.checkEmailTitle}</CardTitle>
           <CardDescription>{t.checkEmailDescription}</CardDescription>
         </CardHeader>
+        <CardContent className="flex flex-col items-center gap-3">
+          <Button type="button" variant="outline" onClick={onResend} disabled={isResending}>
+            {isResending ? t.resending : t.resend}
+          </Button>
+          <Link href={localeHref(locale, "/login")} className="text-sm font-medium text-foreground hover:underline">
+            {t.backToLogin}
+          </Link>
+        </CardContent>
       </Card>
     );
   }

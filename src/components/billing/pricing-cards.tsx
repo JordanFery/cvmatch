@@ -56,7 +56,7 @@ export function PricingCards({
         const isCurrent = currentPlan === plan.id;
 
         return (
-          <Card key={plan.id} className={cn(plan.highlighted && "border-tertiary shadow-sm")}>
+          <Card key={plan.id} className={cn("flex flex-col", plan.highlighted && "border-tertiary shadow-sm")}>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>{plan.name}</CardTitle>
@@ -73,7 +73,7 @@ export function PricingCards({
                 )}
               </p>
             </CardHeader>
-            <CardContent>
+            <CardContent className="flex-1">
               <ul className="space-y-2 text-sm">
                 {plan.features.map((feature) => (
                   <li key={feature} className="flex items-start gap-2">
