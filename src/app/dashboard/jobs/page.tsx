@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Search } from "lucide-react";
 import { getJobOffers } from "@/lib/data/job-offer";
-import { JobOfferCard } from "@/components/jobs/job-offer-card";
+import { JobsList } from "@/components/jobs/jobs-list";
 import { EmptyState } from "@/components/dashboard/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { ButtonLink } from "@/components/ui/button-link";
@@ -28,11 +28,23 @@ export default async function JobsPage() {
           actionHref="/dashboard/jobs/add"
         />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
-          {offers.map((offer) => (
-            <JobOfferCard key={offer.id} offer={offer} />
-          ))}
-        </div>
+        <JobsList
+          offers={offers.map((offer) => ({
+            id: offer.id,
+            title: offer.title,
+            company: offer.company,
+            location: offer.location,
+            salaryRange: offer.salaryRange,
+            status: offer.status,
+            isFavorite: offer.isFavorite,
+            keySkills: offer.keySkills,
+            summary: offer.summary,
+            responsibilities: offer.responsibilities,
+            requirements: offer.requirements,
+            niceToHave: offer.niceToHave,
+            updatedAt: offer.updatedAt,
+          }))}
+        />
       )}
     </div>
   );

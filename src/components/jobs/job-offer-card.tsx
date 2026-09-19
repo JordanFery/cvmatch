@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button-link";
 import { FavoriteButton } from "@/components/ui/favorite-button";
 import { JobOfferStatusBadge } from "@/components/jobs/job-offer-status-badge";
+import { DeleteJobOfferDialog } from "@/components/jobs/delete-job-offer-dialog";
 
 export function JobOfferCard({
   offer,
@@ -66,11 +67,14 @@ export function JobOfferCard({
           </div>
         )}
 
-        <div className="flex items-center justify-between pt-1">
+        <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
           <p className="text-xs text-muted-foreground">Mis à jour le {dateFormatter.format(offer.updatedAt)}</p>
-          <ButtonLink href={`/dashboard/jobs/${offer.id}`} variant="outline" size="sm">
-            Voir l&apos;offre
-          </ButtonLink>
+          <div className="flex items-center gap-2">
+            <DeleteJobOfferDialog jobOfferId={offer.id} />
+            <ButtonLink href={`/dashboard/jobs/${offer.id}`} variant="outline" size="sm">
+              Voir l&apos;offre
+            </ButtonLink>
+          </div>
         </div>
       </CardContent>
     </Card>
