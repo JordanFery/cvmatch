@@ -91,6 +91,14 @@ export const BLOG_POSTS: BlogPostMeta[] = [
     publishedAt: "2026-09-17",
     readingTimeMinutes: 5,
   },
+  {
+    slug: "cv-nouvel-arrivant-canada",
+    title: "CV de nouvel arrivant au Canada : quelles sections garder, lesquelles retirer",
+    description:
+      "Photo, âge, situation familiale, signature : ce qui doit disparaître d'un CV formaté pour un autre pays, ce qu'il faut ajouter à la place, et comment présenter une expérience obtenue à l'étranger.",
+    publishedAt: "2026-09-21",
+    readingTimeMinutes: 6,
+  },
 ];
 
 export function getBlogPost(slug: string): BlogPostMeta | undefined {
