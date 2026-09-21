@@ -6,8 +6,13 @@ import { LandingFooter } from "@/components/landing/footer";
 import { dictionaries } from "@/lib/i18n/dictionaries";
 import { isLocale, type Locale } from "@/lib/i18n/config";
 import { getAuthUser } from "@/lib/data/profile";
-import { SUPPORT_EMAIL } from "@/lib/legal/site";
 import { localeAlternates } from "@/lib/i18n/alternates";
+
+// Hardcoded on this page specifically (rather than the env-driven
+// SUPPORT_EMAIL in src/lib/legal/site.ts) so the mailto link and the
+// displayed address are always this one, regardless of how
+// NEXT_PUBLIC_SUPPORT_EMAIL is configured in a given environment.
+const CONTACT_EMAIL = "jordan.fery.dev@gmail.com";
 
 type Params = { params: Promise<{ locale: string }> };
 
@@ -53,11 +58,11 @@ export default async function ContactPage({ params }: Params) {
           <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">{copy.title}</h1>
           <p className="mt-4 text-muted-foreground">{copy.intro}</p>
           <a
-            href={`mailto:${SUPPORT_EMAIL}`}
+            href={`mailto:${CONTACT_EMAIL}`}
             className="mt-8 inline-flex items-center gap-2 rounded-lg border border-border bg-card px-5 py-3 font-medium hover:bg-muted"
           >
             <Mail className="size-4" aria-hidden="true" />
-            {SUPPORT_EMAIL}
+            {CONTACT_EMAIL}
           </a>
           <p className="mt-6 text-sm text-muted-foreground">{copy.replyTime}</p>
         </div>
