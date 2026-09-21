@@ -91,6 +91,21 @@ const nextConfig: NextConfig = {
   // all ("non-ecmascript placeable asset") — same fix, load it straight
   // from node_modules instead of trying to bundle it.
   serverExternalPackages: ["pdf-parse", "pdfjs-dist", "@napi-rs/canvas"],
+  // serverExternalPackages above stops the bundler from mangling pdfjs-dist's
+  // worker-loading code, but that's a separate problem from Vercel's build
+  // actually shipping the worker file: pdfjs-dist loads it via
+  // `import(this.workerSrc)` with `/*webpackIgnore: true*/ /*@vite-ignore*/`
+  // (see node_modules/pdfjs-dist/legacy/build/pdf.mjs), which is invisible to
+  // both bundlers AND to Next's output file tracer (@vercel/nft) — so the
+  // deployed function's node_modules never contains pdf.worker.mjs at all,
+  // throwing "Setting up fake worker failed: Cannot find module
+  // '.../pdfjs-dist/legacy/build/pdf.worker.mjs'" the moment a real CV
+  // upload hits it in production (never seen locally, where the full
+  // node_modules tree is always present). Force-including it here is the
+  // documented escape hatch for exactly this case.
+  outputFileTracingIncludes: {
+    "/*": ["node_modules/pdfjs-dist/legacy/build/pdf.worker.mjs"],
+  },
   experimental: {
     serverActions: {
       // CV uploads go straight to a Server Action as FormData; the default
