@@ -99,6 +99,14 @@ export const BLOG_POSTS: BlogPostMeta[] = [
     publishedAt: "2026-09-21",
     readingTimeMinutes: 6,
   },
+  {
+    slug: "erreurs-de-mise-en-forme-cv-ats",
+    title: "Les erreurs de mise en forme qui empêchent un ATS de lire votre CV",
+    description:
+      "Colonnes, tableaux, en-têtes, images, PDF scanné : les pièges de mise en page les plus courants qui rendent un CV invisible pour un logiciel de tri, et comment vérifier le vôtre en 2 minutes.",
+    publishedAt: "2026-09-23",
+    readingTimeMinutes: 6,
+  },
 ];
 
 export function getBlogPost(slug: string): BlogPostMeta | undefined {
