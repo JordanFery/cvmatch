@@ -107,6 +107,14 @@ export const BLOG_POSTS: BlogPostMeta[] = [
     publishedAt: "2026-09-23",
     readingTimeMinutes: 6,
   },
+  {
+    slug: "cvmatch-nouveaux-arrivants-canada",
+    title: "Vous venez d'arriver au Canada et vous cherchez un emploi ? CVMatch est fait pour vous",
+    description:
+      "Un CV formaté pour un autre pays, des codes de recrutement inconnus, aucun réseau local encore : ce que CVMatch fait concrètement pour alléger votre recherche d'emploi en arrivant au Canada.",
+    publishedAt: "2026-10-01",
+    readingTimeMinutes: 5,
+  },
 ];
 
 export function getBlogPost(slug: string): BlogPostMeta | undefined {

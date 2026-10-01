@@ -22,6 +22,7 @@ import { RelancerUnRecruteurApresUneCandidature } from "@/content/blog/relancer-
 import { CvReconversionProfessionnelle } from "@/content/blog/cv-reconversion-professionnelle";
 import { CvNouvelArrivantCanada } from "@/content/blog/cv-nouvel-arrivant-canada";
 import { ErreursDeMiseEnFormeCvAts } from "@/content/blog/erreurs-de-mise-en-forme-cv-ats";
+import { CvmatchNouveauxArrivantsCanada } from "@/content/blog/cvmatch-nouveaux-arrivants-canada";
 
 // Static import per post rather than a dynamic component map — with only a
 // handful of articles this stays simple and fully type-checked; a CMS or
@@ -40,6 +41,7 @@ const CONTENT: Record<string, () => React.ReactElement> = {
   "cv-reconversion-professionnelle": CvReconversionProfessionnelle,
   "cv-nouvel-arrivant-canada": CvNouvelArrivantCanada,
   "erreurs-de-mise-en-forme-cv-ats": ErreursDeMiseEnFormeCvAts,
+  "cvmatch-nouveaux-arrivants-canada": CvmatchNouveauxArrivantsCanada,
 };
 
 type Params = { params: Promise<{ locale: string; slug: string }> };
