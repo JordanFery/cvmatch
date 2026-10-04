@@ -240,6 +240,11 @@ enum TailoredCvStatus {
   FAILED
 }
 
+enum TailoredCvLanguage {
+  FR
+  EN
+}
+
 /// A version of the master `Cv`'s structured content reordered/rephrased for
 /// a specific `JobOffer` — the "TAILORED CV" node in the pipeline. Generation
 /// may reorder sections, re-prioritize which existing skills/bullets are
@@ -249,18 +254,19 @@ enum TailoredCvStatus {
 /// single JSON document — no raw-file bookkeeping to separate here, unlike
 /// `Cv`/`CvData`, so one column is enough.
 model TailoredCv {
-  id           String           @id @default(uuid()) @db.Uuid
-  userId       String           @map("user_id") @db.Uuid
-  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  cvId         String           @map("cv_id") @db.Uuid
-  cv           Cv               @relation(fields: [cvId], references: [id], onDelete: Cascade)
-  jobOfferId   String           @map("job_offer_id") @db.Uuid
-  jobOffer     JobOffer         @relation(fields: [jobOfferId], references: [id], onDelete: Cascade)
-  status       TailoredCvStatus @default(PROCESSING)
-  errorMessage String?          @map("error_message")
+  id           String             @id @default(uuid()) @db.Uuid
+  userId       String             @map("user_id") @db.Uuid
+  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  cvId         String             @map("cv_id") @db.Uuid
+  cv           Cv                 @relation(fields: [cvId], references: [id], onDelete: Cascade)
+  jobOfferId   String             @map("job_offer_id") @db.Uuid
+  jobOffer     JobOffer           @relation(fields: [jobOfferId], references: [id], onDelete: Cascade)
+  status       TailoredCvStatus   @default(PROCESSING)
+  language     TailoredCvLanguage @default(FR)
+  errorMessage String?            @map("error_message")
   data         Json
-  createdAt    DateTime         @default(now()) @map("created_at")
-  updatedAt    DateTime         @updatedAt @map("updated_at")
+  createdAt    DateTime           @default(now()) @map("created_at")
+  updatedAt    DateTime           @updatedAt @map("updated_at")
 
   @@unique([cvId, jobOfferId])
   @@index([userId])

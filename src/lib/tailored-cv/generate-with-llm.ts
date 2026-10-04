@@ -6,6 +6,7 @@ import { llmCvSchema, llmToParsedCv, parsedCvToLlm } from "@/lib/cv/llm-schema";
 import { formatCvForAnalysis, formatJobOfferForAnalysis } from "@/lib/ats/format";
 import type { JobOfferData } from "@/lib/validations/job-offer";
 import type { AtsAnalysisData } from "@/lib/validations/ats-analysis";
+import type { Locale } from "@/lib/i18n/config";
 import { reportError } from "@/lib/monitoring/alert";
 
 // Enforced by the "server-only" import above (build fails if a Client
@@ -21,16 +22,26 @@ function getClient(): Anthropic {
   return client;
 }
 
-const SYSTEM_PROMPT = `You tailor a candidate's master CV for a specific job posting, returning the full CV in the given JSON schema.
+const OUTPUT_LANGUAGE_NAME: Record<Locale, string> = {
+  fr: "French",
+  en: "English",
+};
+
+function systemPrompt(language: Locale): string {
+  const languageName = OUTPUT_LANGUAGE_NAME[language];
+  return `You tailor a candidate's master CV for a specific job posting, returning the full CV in the given JSON schema, written entirely in ${languageName}.
 
 Hard rules — never break these:
-- Never invent, add, or imply an employer, job title, degree, certification, skill, technology, project, or achievement that is not already present in the source CV. Tailoring means reordering, re-prioritizing, and rewording — never fabricating.
+- Never invent, add, or imply an employer, job title, degree, certification, skill, technology, project, or achievement that is not already present in the source CV. Tailoring means reordering, re-prioritizing, rewording, and translating — never fabricating.
 - Every experience, education entry, certification, and project from the source CV must still appear in the output. You may reorder them (most relevant to this job first) but never delete one.
 - You may reword the summary and experience descriptions/achievements to use terminology and emphasis that better match the job posting — but only to describe the same underlying facts more clearly for this audience. Do not change what was actually done, the technologies actually used, or invent metrics.
 - You may reorder items within each skills category (technical, tools, frameworks, etc.) to put job-relevant ones first, and reorder achievements/technologies within an experience — but do not add or remove any skill or technology that wasn't already listed somewhere in the source CV.
 - The summary should be rewritten as a short, honest pitch connecting the candidate's real background to this specific role.
 - If a field was empty ("") or an array was empty in the source CV, it's fine for it to stay that way — do not fill it in with invented content.
-- Preserve dates and contact information exactly as given in the source CV.`;
+- Preserve dates and contact information exactly as given in the source CV.
+- Write every free-text field — summary, descriptions, achievements, custom sections — in ${languageName}, regardless of what language the source CV or job posting are written in. Job/degree titles may be adapted to the standard ${languageName}-market term for the same role when it helps a local recruiter recognize it (e.g. "Chargé de projet" <-> "Project Manager"), but never upgrade the seniority or scope implied by the original title.
+- Never translate proper nouns: keep employer names, school/institution names, certification/program names, product names, and place names exactly as they appear in the source CV.`;
+}
 
 /**
  * Produces a version of the CV reordered/reworded for a specific job
@@ -41,6 +52,7 @@ export async function generateTailoredCv(
   sourceCv: ParsedCv,
   jobOffer: JobOfferData,
   atsAnalysis: AtsAnalysisData | null,
+  language: Locale,
 ): Promise<ParsedCv | null> {
   const cvText = formatCvForAnalysis(sourceCv);
   const jobText = formatJobOfferForAnalysis(jobOffer);
@@ -55,7 +67,7 @@ export async function generateTailoredCv(
       const response = await getClient().messages.parse({
         model: "claude-opus-5",
         max_tokens: 8000,
-        system: SYSTEM_PROMPT,
+        system: systemPrompt(language),
         output_config: {
           effort: "high",
           format: zodOutputFormat(llmCvSchema),
@@ -63,7 +75,7 @@ export async function generateTailoredCv(
         messages: [
           {
             role: "user",
-            content: `Tailor this CV for the job posting below. Return the complete CV — every section, reordered and reworded for this role.\n\n<cv_summary_for_context>\n${cvText}\n</cv_summary_for_context>\n\n<cv_full_source_json>\n${JSON.stringify(sourceLlmCv)}\n</cv_full_source_json>\n\n<job_posting>\n${jobText}\n</job_posting>${gapsNote}`,
+            content: `Tailor this CV for the job posting below. Return the complete CV — every section, reordered and reworded for this role, written entirely in ${OUTPUT_LANGUAGE_NAME[language]}.\n\n<cv_summary_for_context>\n${cvText}\n</cv_summary_for_context>\n\n<cv_full_source_json>\n${JSON.stringify(sourceLlmCv)}\n</cv_full_source_json>\n\n<job_posting>\n${jobText}\n</job_posting>${gapsNote}`,
           },
         ],
       });

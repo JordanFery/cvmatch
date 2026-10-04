@@ -12,6 +12,8 @@ import { DeleteTailoredCvDialog } from "@/components/jobs/tailored-cv/delete-tai
 import { SaveToLibraryButton } from "@/components/jobs/tailored-cv/save-to-library-button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PageHeader } from "@/components/ui/page-header";
+import { Badge } from "@/components/ui/badge";
+import type { Locale } from "@/lib/i18n/config";
 
 export const metadata: Metadata = { title: "CV adapté" };
 
@@ -25,6 +27,7 @@ export default async function TailoredCvPage({ params }: { params: Promise<{ id:
   if (!tailored) notFound();
 
   const data = toParsedCvFromTailored(tailored.data);
+  const locale: Locale = tailored.language === "EN" ? "en" : "fr";
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -33,6 +36,7 @@ export default async function TailoredCvPage({ params }: { params: Promise<{ id:
         description={`Pour l'offre « ${offer.title} »`}
         actions={
           <>
+            <Badge variant="outline">{locale === "en" ? "English" : "Français"}</Badge>
             <SaveToLibraryButton tailoredCvId={tailored.id} />
             <DeleteTailoredCvDialog tailoredCvId={tailored.id} />
           </>
@@ -59,7 +63,7 @@ export default async function TailoredCvPage({ params }: { params: Promise<{ id:
             <DownloadPdfButton href={`/api/tailored-cv/${tailored.id}/pdf`} />
           </div>
           <div className="rounded-lg border border-border p-2">
-            <ResumePreview cv={data} />
+            <ResumePreview cv={data} locale={locale} />
           </div>
         </TabsContent>
 

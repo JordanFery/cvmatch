@@ -1,6 +1,8 @@
 import "server-only";
 import { Document, Page, Text, View, StyleSheet, renderToBuffer } from "@react-pdf/renderer";
 import type { ParsedCv } from "@/lib/validations/cv";
+import { getResumeLabels } from "@/lib/cv/resume-labels";
+import type { Locale } from "@/lib/i18n/config";
 
 // A real, standalone PDF generated from structured data — deliberately not
 // the browser's print-to-PDF (window.print()). That path bakes in whatever
@@ -41,13 +43,15 @@ const styles = StyleSheet.create({
   skillLine: { marginBottom: 3 },
 });
 
-function formatDateRange(start: string | null, end: string | null, current: boolean) {
+function formatDateRange(start: string | null, end: string | null, current: boolean, present: string) {
   const from = start ?? "?";
-  const to = current ? "Présent" : (end ?? "?");
+  const to = current ? present : (end ?? "?");
   return `${from} — ${to}`;
 }
 
-export function ResumePdfDocument({ cv }: { cv: ParsedCv }) {
+/** `locale` picks the section headings — defaults to "fr" (the master/library CV route always passes that explicitly); the tailored-CV route passes whatever language that CV was generated in. */
+export function ResumePdfDocument({ cv, locale = "fr" }: { cv: ParsedCv; locale?: Locale }) {
+  const labels = getResumeLabels(locale);
   const fullName = [cv.personalInfo.firstName, cv.personalInfo.lastName].filter(Boolean).join(" ") || "—";
   const contactLine = [
     cv.personalInfo.email,
@@ -61,12 +65,12 @@ export function ResumePdfDocument({ cv }: { cv: ParsedCv }) {
     .join("   ·   ");
 
   const skillGroups: { label: string; values: string[] }[] = [
-    { label: "Techniques", values: cv.skills.technical },
-    { label: "Outils", values: cv.skills.tools },
-    { label: "Frameworks", values: cv.skills.frameworks },
-    { label: "Bases de données", values: cv.skills.databases },
-    { label: "Savoir-être", values: cv.skills.soft },
-    { label: "Autres", values: cv.skills.other },
+    { label: labels.skillGroups.technical, values: cv.skills.technical },
+    { label: labels.skillGroups.tools, values: cv.skills.tools },
+    { label: labels.skillGroups.frameworks, values: cv.skills.frameworks },
+    { label: labels.skillGroups.databases, values: cv.skills.databases },
+    { label: labels.skillGroups.soft, values: cv.skills.soft },
+    { label: labels.skillGroups.other, values: cv.skills.other },
   ].filter((group) => group.values.length > 0);
 
   return (
@@ -85,14 +89,14 @@ export function ResumePdfDocument({ cv }: { cv: ParsedCv }) {
 
         {cv.summary && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Résumé</Text>
+            <Text style={styles.sectionTitle}>{labels.summary}</Text>
             <Text style={styles.bodyText}>{cv.summary}</Text>
           </View>
         )}
 
         {cv.experiences.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Expériences</Text>
+            <Text style={styles.sectionTitle}>{labels.experiences}</Text>
             {cv.experiences.map((exp, index) => (
               <View key={index} style={styles.entry}>
                 <View style={styles.entryRow}>
@@ -100,7 +104,9 @@ export function ResumePdfDocument({ cv }: { cv: ParsedCv }) {
                     {exp.jobTitle ?? "—"}
                     {exp.company && <Text style={styles.entryCompany}> · {exp.company}</Text>}
                   </Text>
-                  <Text style={styles.entryMeta}>{formatDateRange(exp.startDate, exp.endDate, exp.current)}</Text>
+                  <Text style={styles.entryMeta}>
+                    {formatDateRange(exp.startDate, exp.endDate, exp.current, labels.present)}
+                  </Text>
                 </View>
                 {exp.location && <Text style={styles.entryMeta}>{exp.location}</Text>}
                 {exp.description && <Text style={styles.bodyText}>{exp.description}</Text>}
@@ -118,7 +124,7 @@ export function ResumePdfDocument({ cv }: { cv: ParsedCv }) {
 
         {cv.education.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Formation</Text>
+            <Text style={styles.sectionTitle}>{labels.education}</Text>
             {cv.education.map((edu, index) => (
               <View key={index} style={styles.entry}>
                 <View style={styles.entryRow}>
@@ -126,7 +132,9 @@ export function ResumePdfDocument({ cv }: { cv: ParsedCv }) {
                     {[edu.degree, edu.field].filter(Boolean).join(", ") || "—"}
                     {edu.school && <Text style={styles.entryCompany}> · {edu.school}</Text>}
                   </Text>
-                  <Text style={styles.entryMeta}>{formatDateRange(edu.startDate, edu.endDate, false)}</Text>
+                  <Text style={styles.entryMeta}>
+                    {formatDateRange(edu.startDate, edu.endDate, false, labels.present)}
+                  </Text>
                 </View>
                 {edu.description && <Text style={styles.bodyText}>{edu.description}</Text>}
               </View>
@@ -136,7 +144,7 @@ export function ResumePdfDocument({ cv }: { cv: ParsedCv }) {
 
         {skillGroups.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Compétences</Text>
+            <Text style={styles.sectionTitle}>{labels.skills}</Text>
             {skillGroups.map((group) => (
               <Text key={group.label} style={styles.skillLine}>
                 <Text style={styles.entryTitle}>{group.label} : </Text>
@@ -148,7 +156,7 @@ export function ResumePdfDocument({ cv }: { cv: ParsedCv }) {
 
         {cv.projects.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Projets</Text>
+            <Text style={styles.sectionTitle}>{labels.projects}</Text>
             {cv.projects.map((project, index) => (
               <View key={index} style={styles.entry}>
                 <Text style={styles.entryTitle}>{project.name ?? "—"}</Text>
@@ -161,7 +169,7 @@ export function ResumePdfDocument({ cv }: { cv: ParsedCv }) {
 
         {cv.certifications.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Certifications</Text>
+            <Text style={styles.sectionTitle}>{labels.certifications}</Text>
             {cv.certifications.map((cert, index) => (
               <Text key={index} style={styles.skillLine}>
                 {[cert.name, cert.organization, cert.date].filter(Boolean).join(" · ") || "—"}
@@ -172,7 +180,7 @@ export function ResumePdfDocument({ cv }: { cv: ParsedCv }) {
 
         {cv.languages.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Langues</Text>
+            <Text style={styles.sectionTitle}>{labels.languages}</Text>
             <Text>{cv.languages.map((lang) => `${lang.language}${lang.proficiency ? ` (${lang.proficiency})` : ""}`).join(", ")}</Text>
           </View>
         )}
@@ -189,6 +197,6 @@ export function ResumePdfDocument({ cv }: { cv: ParsedCv }) {
 }
 
 /** Renders a CV to a downloadable PDF buffer — the resume's content only, nothing else (see the note above). */
-export async function renderResumePdf(cv: ParsedCv): Promise<Buffer> {
-  return renderToBuffer(<ResumePdfDocument cv={cv} />);
+export async function renderResumePdf(cv: ParsedCv, locale: Locale = "fr"): Promise<Buffer> {
+  return renderToBuffer(<ResumePdfDocument cv={cv} locale={locale} />);
 }

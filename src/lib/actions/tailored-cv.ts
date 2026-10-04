@@ -11,6 +11,7 @@ import { parsedCvSchema, type ParsedCv } from "@/lib/validations/cv";
 import { cvDataJson } from "@/lib/cv/cv-data-json";
 import { checkAndAwardBadges } from "@/lib/badges/check";
 import type { AtsAnalysisData } from "@/lib/validations/ats-analysis";
+import { isLocale, type Locale } from "@/lib/i18n/config";
 
 type ActionResult<T = object> = { error: string } | ({ success: true } & T);
 
@@ -21,8 +22,13 @@ function asStringArray(value: unknown): string[] {
   return Array.isArray(value) ? (value as string[]) : [];
 }
 
-export async function generateTailoredCvAction(jobOfferId: string): Promise<ActionResult> {
+function toTailoredCvLanguage(locale: Locale): "FR" | "EN" {
+  return locale === "en" ? "EN" : "FR";
+}
+
+export async function generateTailoredCvAction(jobOfferId: string, language: Locale): Promise<ActionResult> {
   const user = await requireAuthUser();
+  if (!isLocale(language)) return { error: "Langue invalide." };
 
   const jobOffer = await prisma.jobOffer.findFirst({ where: { id: jobOfferId, userId: user.id } });
   if (!jobOffer) return { error: "Offre introuvable." };
@@ -33,10 +39,12 @@ export async function generateTailoredCvAction(jobOfferId: string): Promise<Acti
   const credits = await consumeCredits(user, "TAILORED_CV");
   if (!credits.ok) return { error: credits.error };
 
+  const dbLanguage = toTailoredCvLanguage(language);
+
   await prisma.tailoredCv.upsert({
     where: { cvId_jobOfferId: { cvId: cv.id, jobOfferId } },
-    create: { userId: user.id, cvId: cv.id, jobOfferId, status: "PROCESSING", data: {} },
-    update: { status: "PROCESSING", errorMessage: null },
+    create: { userId: user.id, cvId: cv.id, jobOfferId, status: "PROCESSING", language: dbLanguage, data: {} },
+    update: { status: "PROCESSING", language: dbLanguage, errorMessage: null },
   });
 
   const jobOfferData = {
@@ -68,7 +76,7 @@ export async function generateTailoredCvAction(jobOfferId: string): Promise<Acti
         }
       : null;
 
-  const result = await generateTailoredCv(cv.parsedData, jobOfferData, atsAnalysisData);
+  const result = await generateTailoredCv(cv.parsedData, jobOfferData, atsAnalysisData, language);
 
   await prisma.tailoredCv.update({
     where: { cvId_jobOfferId: { cvId: cv.id, jobOfferId } },

@@ -14,7 +14,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   if (!tailored) return NextResponse.json({ error: "CV introuvable." }, { status: 404 });
 
   const data = toParsedCvFromTailored(tailored.data);
-  const pdf = await renderResumePdf(data);
+  const pdf = await renderResumePdf(data, tailored.language === "EN" ? "en" : "fr");
 
   return new NextResponse(new Uint8Array(pdf), {
     headers: {

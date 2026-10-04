@@ -2,8 +2,13 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { ButtonLink } from "@/components/ui/button-link";
 import { GenerateTailoredCvButton } from "@/components/jobs/tailored-cv/generate-tailored-cv-button";
+import type { Locale } from "@/lib/i18n/config";
 
-type Tailored = { id: string; status: string; errorMessage: string | null } | null;
+type Tailored = { id: string; status: string; errorMessage: string | null; language: string } | null;
+
+function toLocale(language: string): Locale {
+  return language === "EN" ? "en" : "fr";
+}
 
 export function TailoredCvSection({
   jobOfferId,
@@ -36,12 +41,20 @@ export function TailoredCvSection({
             {tailored?.status === "FAILED" && (
               <p className="text-sm text-destructive">{tailored.errorMessage ?? "La génération a échoué."}</p>
             )}
-            <GenerateTailoredCvButton jobOfferId={jobOfferId} label="Générer un CV adapté" />
+            <GenerateTailoredCvButton
+              jobOfferId={jobOfferId}
+              label="Générer un CV adapté"
+              defaultLanguage={tailored ? toLocale(tailored.language) : "fr"}
+            />
           </div>
         ) : (
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-start gap-2">
             <ButtonLink href={`/dashboard/jobs/${jobOfferId}/tailored-cv`}>Voir le CV adapté</ButtonLink>
-            <GenerateTailoredCvButton jobOfferId={jobOfferId} label="Régénérer" />
+            <GenerateTailoredCvButton
+              jobOfferId={jobOfferId}
+              label="Régénérer"
+              defaultLanguage={toLocale(tailored.language)}
+            />
           </div>
         )}
       </CardContent>

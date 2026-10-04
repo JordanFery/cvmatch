@@ -1,8 +1,10 @@
 import type { ParsedCv } from "@/lib/validations/cv";
+import { getResumeLabels } from "@/lib/cv/resume-labels";
+import type { Locale } from "@/lib/i18n/config";
 
-function formatDateRange(start: string | null, end: string | null, current: boolean) {
+function formatDateRange(start: string | null, end: string | null, current: boolean, present: string) {
   const from = start ?? "?";
-  const to = current ? "Présent" : (end ?? "?");
+  const to = current ? present : (end ?? "?");
   return `${from} — ${to}`;
 }
 
@@ -14,8 +16,9 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
   );
 }
 
-/** Read-only, print-styled on-screen preview of a resume — the actual downloadable PDF is a separate, real document, see src/lib/cv/pdf.tsx. */
-export function ResumePreview({ cv }: { cv: ParsedCv }) {
+/** Read-only, print-styled on-screen preview of a resume — the actual downloadable PDF is a separate, real document, see src/lib/cv/pdf.tsx. `locale` picks the section headings (a tailored CV generated in English must not be displayed under French headers) — defaults to "fr" since the only other caller (the CV editor) always shows French-sourced content. */
+export function ResumePreview({ cv, locale = "fr" }: { cv: ParsedCv; locale?: Locale }) {
+  const labels = getResumeLabels(locale);
   const fullName = [cv.personalInfo.firstName, cv.personalInfo.lastName].filter(Boolean).join(" ");
   const contactLine = [
     cv.personalInfo.email,
@@ -29,12 +32,12 @@ export function ResumePreview({ cv }: { cv: ParsedCv }) {
     .join(" · ");
 
   const skillGroups: { label: string; values: string[] }[] = [
-    { label: "Techniques", values: cv.skills.technical },
-    { label: "Outils", values: cv.skills.tools },
-    { label: "Frameworks", values: cv.skills.frameworks },
-    { label: "Bases de données", values: cv.skills.databases },
-    { label: "Savoir-être", values: cv.skills.soft },
-    { label: "Autres", values: cv.skills.other },
+    { label: labels.skillGroups.technical, values: cv.skills.technical },
+    { label: labels.skillGroups.tools, values: cv.skills.tools },
+    { label: labels.skillGroups.frameworks, values: cv.skills.frameworks },
+    { label: labels.skillGroups.databases, values: cv.skills.databases },
+    { label: labels.skillGroups.soft, values: cv.skills.soft },
+    { label: labels.skillGroups.other, values: cv.skills.other },
   ].filter((group) => group.values.length > 0);
 
   return (
@@ -47,14 +50,14 @@ export function ResumePreview({ cv }: { cv: ParsedCv }) {
 
       {cv.summary && (
         <section className="mb-6">
-          <SectionTitle>Résumé</SectionTitle>
+          <SectionTitle>{labels.summary}</SectionTitle>
           <p className="text-sm leading-relaxed">{cv.summary}</p>
         </section>
       )}
 
       {cv.experiences.length > 0 && (
         <section className="mb-6">
-          <SectionTitle>Expériences</SectionTitle>
+          <SectionTitle>{labels.experiences}</SectionTitle>
           <div className="space-y-4">
             {cv.experiences.map((exp, index) => (
               <div key={index}>
@@ -63,7 +66,9 @@ export function ResumePreview({ cv }: { cv: ParsedCv }) {
                     {exp.jobTitle ?? "—"}
                     {exp.company && <span className="font-normal text-neutral-600"> · {exp.company}</span>}
                   </p>
-                  <p className="text-xs text-neutral-500">{formatDateRange(exp.startDate, exp.endDate, exp.current)}</p>
+                  <p className="text-xs text-neutral-500">
+                    {formatDateRange(exp.startDate, exp.endDate, exp.current, labels.present)}
+                  </p>
                 </div>
                 {exp.location && <p className="text-xs text-neutral-500">{exp.location}</p>}
                 {exp.description && <p className="mt-1 text-sm leading-relaxed">{exp.description}</p>}
@@ -85,7 +90,7 @@ export function ResumePreview({ cv }: { cv: ParsedCv }) {
 
       {cv.education.length > 0 && (
         <section className="mb-6">
-          <SectionTitle>Formation</SectionTitle>
+          <SectionTitle>{labels.education}</SectionTitle>
           <div className="space-y-3">
             {cv.education.map((edu, index) => (
               <div key={index}>
@@ -94,7 +99,9 @@ export function ResumePreview({ cv }: { cv: ParsedCv }) {
                     {[edu.degree, edu.field].filter(Boolean).join(", ") || "—"}
                     {edu.school && <span className="font-normal text-neutral-600"> · {edu.school}</span>}
                   </p>
-                  <p className="text-xs text-neutral-500">{formatDateRange(edu.startDate, edu.endDate, false)}</p>
+                  <p className="text-xs text-neutral-500">
+                    {formatDateRange(edu.startDate, edu.endDate, false, labels.present)}
+                  </p>
                 </div>
                 {edu.description && <p className="mt-1 text-sm leading-relaxed">{edu.description}</p>}
               </div>
@@ -105,7 +112,7 @@ export function ResumePreview({ cv }: { cv: ParsedCv }) {
 
       {skillGroups.length > 0 && (
         <section className="mb-6">
-          <SectionTitle>Compétences</SectionTitle>
+          <SectionTitle>{labels.skills}</SectionTitle>
           <div className="space-y-1 text-sm">
             {skillGroups.map((group) => (
               <p key={group.label}>
@@ -119,7 +126,7 @@ export function ResumePreview({ cv }: { cv: ParsedCv }) {
 
       {cv.projects.length > 0 && (
         <section className="mb-6">
-          <SectionTitle>Projets</SectionTitle>
+          <SectionTitle>{labels.projects}</SectionTitle>
           <div className="space-y-3">
             {cv.projects.map((project, index) => (
               <div key={index}>
@@ -136,7 +143,7 @@ export function ResumePreview({ cv }: { cv: ParsedCv }) {
 
       {cv.certifications.length > 0 && (
         <section className="mb-6">
-          <SectionTitle>Certifications</SectionTitle>
+          <SectionTitle>{labels.certifications}</SectionTitle>
           <ul className="space-y-0.5 text-sm">
             {cv.certifications.map((cert, index) => (
               <li key={index}>
@@ -149,7 +156,7 @@ export function ResumePreview({ cv }: { cv: ParsedCv }) {
 
       {cv.languages.length > 0 && (
         <section className="mb-6">
-          <SectionTitle>Langues</SectionTitle>
+          <SectionTitle>{labels.languages}</SectionTitle>
           <p className="text-sm">
             {cv.languages.map((lang) => `${lang.language}${lang.proficiency ? ` (${lang.proficiency})` : ""}`).join(", ")}
           </p>
