@@ -15,7 +15,12 @@ export function PourquoiVotreCvEstRejeteAvantDetreLu() {
           Colonnes multiples, tableaux, zones de texte, icônes remplaçant des mots — visuellement agréable pour un
           humain, souvent illisible pour un ATS qui extrait le texte dans un ordre différent de celui affiché à
           l&apos;écran. Résultat : des informations importantes (dates, titres de poste) se retrouvent mélangées ou
-          disparaissent entièrement de la version que voit le recruteur.
+          disparaissent entièrement de la version que voit le recruteur. Le détail complet de ces pièges — et comment
+          vérifier le vôtre — est couvert dans notre article{" "}
+          <Link href="/fr/blog/erreurs-de-mise-en-forme-cv-ats" className="font-medium underline underline-offset-4">
+            sur les erreurs de mise en forme qui empêchent un ATS de lire votre CV
+          </Link>
+          .
         </p>
       </section>
 

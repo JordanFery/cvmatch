@@ -11,7 +11,14 @@ export function AdapterSonCvAChaqueOffre() {
 
       <section className="space-y-3">
         <h2 className="text-xl font-semibold text-foreground">Ce qui change réellement d&apos;une offre à l&apos;autre</h2>
-        <p>Adapter un CV ne veut pas dire le réécrire en entier à chaque fois. Trois éléments font la majorité de la différence :</p>
+        <p>
+          Adapter un CV ne veut pas dire le réécrire en entier à chaque fois. Trois éléments font la majorité de la
+          différence — et l&apos;exercice compte double si vous changez de métier, où{" "}
+          <Link href="/fr/blog/cv-reconversion-professionnelle" className="font-medium underline underline-offset-4">
+            valoriser les bonnes parties d&apos;un parcours différent
+          </Link>{" "}
+          devient l&apos;essentiel de l&apos;adaptation :
+        </p>
         <ul className="list-inside list-disc space-y-2">
           <li>
             <strong className="text-foreground">L&apos;ordre et la mise en avant des expériences</strong> — les
