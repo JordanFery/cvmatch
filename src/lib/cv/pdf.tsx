@@ -1,8 +1,17 @@
 import "server-only";
-import { Document, Page, Text, View, StyleSheet, renderToBuffer } from "@react-pdf/renderer";
+import { Document, Page, Text, View, StyleSheet, Font, renderToBuffer } from "@react-pdf/renderer";
 import type { ParsedCv } from "@/lib/validations/cv";
 import { getResumeLabels } from "@/lib/cv/resume-labels";
 import type { Locale } from "@/lib/i18n/config";
+
+// react-pdf hyphenates long words by default (breaking them mid-word with no
+// hyphen character shown) when they don't fit the line width — visible on
+// the header's contact line, where an e-mail address or a LinkedIn/GitHub
+// URL has no natural space to break at. Returning the word as a single,
+// unsplittable fragment disables that: a long token now wraps whole onto the
+// next line instead of being cut in the middle. Registered once at module
+// scope since it's a package-global setting, not tied to one render.
+Font.registerHyphenationCallback((word) => [word]);
 
 // A real, standalone PDF generated from structured data — deliberately not
 // the browser's print-to-PDF (window.print()). That path bakes in whatever
@@ -62,7 +71,12 @@ export function ResumePdfDocument({ cv, locale = "fr" }: { cv: ParsedCv; locale?
     cv.personalInfo.githubUrl,
   ]
     .filter(Boolean)
-    .join("   ·   ");
+    // A single space on each side, not several — react-pdf's line-breaking
+    // inserts a stray visible hyphen right at the wrap point when a forced
+    // break falls inside a run of 2+ consecutive spaces (reproduced in
+    // isolation; a single space doesn't trigger it). Matches the on-screen
+    // preview's separator (resume-preview.tsx) too, which already uses one.
+    .join(" · ");
 
   const skillGroups: { label: string; values: string[] }[] = [
     { label: labels.skillGroups.technical, values: cv.skills.technical },
