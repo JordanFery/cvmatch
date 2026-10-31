@@ -62,3 +62,15 @@ const RESUME_LABELS: Record<Locale, ResumeLabels> = {
 export function getResumeLabels(locale: Locale): ResumeLabels {
   return RESUME_LABELS[locale];
 }
+
+/**
+ * Formats a date range for display, shared by the on-screen preview and the
+ * PDF export. Only ever shows a dash when there are two real values either
+ * side of it — a single known date (or none at all) must never render as
+ * "2025 — ?" or "? — 2025", since an empty/missing field isn't a date.
+ */
+export function formatDateRange(start: string | null, end: string | null, current: boolean, present: string): string {
+  const to = current ? present : end;
+  if (start && to) return `${start} — ${to}`;
+  return start ?? to ?? "";
+}

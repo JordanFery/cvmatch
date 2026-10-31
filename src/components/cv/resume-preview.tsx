@@ -1,12 +1,6 @@
 import type { ParsedCv } from "@/lib/validations/cv";
-import { getResumeLabels } from "@/lib/cv/resume-labels";
+import { getResumeLabels, formatDateRange } from "@/lib/cv/resume-labels";
 import type { Locale } from "@/lib/i18n/config";
-
-function formatDateRange(start: string | null, end: string | null, current: boolean, present: string) {
-  const from = start ?? "?";
-  const to = current ? present : (end ?? "?");
-  return `${from} — ${to}`;
-}
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
@@ -59,31 +53,32 @@ export function ResumePreview({ cv, locale = "fr" }: { cv: ParsedCv; locale?: Lo
         <section className="mb-6">
           <SectionTitle>{labels.experiences}</SectionTitle>
           <div className="space-y-4">
-            {cv.experiences.map((exp, index) => (
-              <div key={index}>
-                <div className="flex flex-wrap items-baseline justify-between gap-x-3">
-                  <p className="text-sm font-medium">
-                    {exp.jobTitle ?? "—"}
-                    {exp.company && <span className="font-normal text-neutral-600"> · {exp.company}</span>}
-                  </p>
-                  <p className="text-xs text-neutral-500">
-                    {formatDateRange(exp.startDate, exp.endDate, exp.current, labels.present)}
-                  </p>
+            {cv.experiences.map((exp, index) => {
+              const dateRange = formatDateRange(exp.startDate, exp.endDate, exp.current, labels.present);
+              return (
+                <div key={index}>
+                  <div className="flex flex-wrap items-baseline justify-between gap-x-3">
+                    <p className="text-sm font-medium">
+                      {exp.jobTitle ?? "—"}
+                      {exp.company && <span className="font-normal text-neutral-600"> · {exp.company}</span>}
+                    </p>
+                    {dateRange && <p className="text-xs text-neutral-500">{dateRange}</p>}
+                  </div>
+                  {exp.location && <p className="text-xs text-neutral-500">{exp.location}</p>}
+                  {exp.description && <p className="mt-1 text-sm leading-relaxed">{exp.description}</p>}
+                  {exp.achievements.length > 0 && (
+                    <ul className="mt-1 list-disc space-y-0.5 pl-4 text-sm leading-relaxed">
+                      {exp.achievements.map((item, i) => (
+                        <li key={i}>{item}</li>
+                      ))}
+                    </ul>
+                  )}
+                  {exp.technologies.length > 0 && (
+                    <p className="mt-1 text-xs text-neutral-500">{exp.technologies.join(" · ")}</p>
+                  )}
                 </div>
-                {exp.location && <p className="text-xs text-neutral-500">{exp.location}</p>}
-                {exp.description && <p className="mt-1 text-sm leading-relaxed">{exp.description}</p>}
-                {exp.achievements.length > 0 && (
-                  <ul className="mt-1 list-disc space-y-0.5 pl-4 text-sm leading-relaxed">
-                    {exp.achievements.map((item, i) => (
-                      <li key={i}>{item}</li>
-                    ))}
-                  </ul>
-                )}
-                {exp.technologies.length > 0 && (
-                  <p className="mt-1 text-xs text-neutral-500">{exp.technologies.join(" · ")}</p>
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
       )}
@@ -92,20 +87,21 @@ export function ResumePreview({ cv, locale = "fr" }: { cv: ParsedCv; locale?: Lo
         <section className="mb-6">
           <SectionTitle>{labels.education}</SectionTitle>
           <div className="space-y-3">
-            {cv.education.map((edu, index) => (
-              <div key={index}>
-                <div className="flex flex-wrap items-baseline justify-between gap-x-3">
-                  <p className="text-sm font-medium">
-                    {[edu.degree, edu.field].filter(Boolean).join(", ") || "—"}
-                    {edu.school && <span className="font-normal text-neutral-600"> · {edu.school}</span>}
-                  </p>
-                  <p className="text-xs text-neutral-500">
-                    {formatDateRange(edu.startDate, edu.endDate, false, labels.present)}
-                  </p>
+            {cv.education.map((edu, index) => {
+              const dateRange = formatDateRange(edu.startDate, edu.endDate, false, labels.present);
+              return (
+                <div key={index}>
+                  <div className="flex flex-wrap items-baseline justify-between gap-x-3">
+                    <p className="text-sm font-medium">
+                      {[edu.degree, edu.field].filter(Boolean).join(", ") || "—"}
+                      {edu.school && <span className="font-normal text-neutral-600"> · {edu.school}</span>}
+                    </p>
+                    {dateRange && <p className="text-xs text-neutral-500">{dateRange}</p>}
+                  </div>
+                  {edu.description && <p className="mt-1 text-sm leading-relaxed">{edu.description}</p>}
                 </div>
-                {edu.description && <p className="mt-1 text-sm leading-relaxed">{edu.description}</p>}
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
       )}

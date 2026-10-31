@@ -1,7 +1,7 @@
 import "server-only";
 import { Document, Page, Text, View, StyleSheet, Font, renderToBuffer } from "@react-pdf/renderer";
 import type { ParsedCv } from "@/lib/validations/cv";
-import { getResumeLabels } from "@/lib/cv/resume-labels";
+import { getResumeLabels, formatDateRange } from "@/lib/cv/resume-labels";
 import type { Locale } from "@/lib/i18n/config";
 
 // react-pdf hyphenates long words by default (breaking them mid-word with no
@@ -51,12 +51,6 @@ const styles = StyleSheet.create({
   techLine: { marginTop: 2, fontSize: 8.5, color: "#737373" },
   skillLine: { marginBottom: 3 },
 });
-
-function formatDateRange(start: string | null, end: string | null, current: boolean, present: string) {
-  const from = start ?? "?";
-  const to = current ? present : (end ?? "?");
-  return `${from} — ${to}`;
-}
 
 /** `locale` picks the section headings — defaults to "fr" (the master/library CV route always passes that explicitly); the tailored-CV route passes whatever language that CV was generated in. */
 export function ResumePdfDocument({ cv, locale = "fr" }: { cv: ParsedCv; locale?: Locale }) {
@@ -111,48 +105,50 @@ export function ResumePdfDocument({ cv, locale = "fr" }: { cv: ParsedCv; locale?
         {cv.experiences.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>{labels.experiences}</Text>
-            {cv.experiences.map((exp, index) => (
-              <View key={index} style={styles.entry}>
-                <View style={styles.entryRow}>
-                  <Text style={styles.entryTitle}>
-                    {exp.jobTitle ?? "—"}
-                    {exp.company && <Text style={styles.entryCompany}> · {exp.company}</Text>}
-                  </Text>
-                  <Text style={styles.entryMeta}>
-                    {formatDateRange(exp.startDate, exp.endDate, exp.current, labels.present)}
-                  </Text>
-                </View>
-                {exp.location && <Text style={styles.entryMeta}>{exp.location}</Text>}
-                {exp.description && <Text style={styles.bodyText}>{exp.description}</Text>}
-                {exp.achievements.map((item, i) => (
-                  <View key={i} style={styles.bullet}>
-                    <Text style={styles.bulletDot}>•</Text>
-                    <Text style={styles.bulletText}>{item}</Text>
+            {cv.experiences.map((exp, index) => {
+              const dateRange = formatDateRange(exp.startDate, exp.endDate, exp.current, labels.present);
+              return (
+                <View key={index} style={styles.entry}>
+                  <View style={styles.entryRow}>
+                    <Text style={styles.entryTitle}>
+                      {exp.jobTitle ?? "—"}
+                      {exp.company && <Text style={styles.entryCompany}> · {exp.company}</Text>}
+                    </Text>
+                    {dateRange && <Text style={styles.entryMeta}>{dateRange}</Text>}
                   </View>
-                ))}
-                {exp.technologies.length > 0 && <Text style={styles.techLine}>{exp.technologies.join(" · ")}</Text>}
-              </View>
-            ))}
+                  {exp.location && <Text style={styles.entryMeta}>{exp.location}</Text>}
+                  {exp.description && <Text style={styles.bodyText}>{exp.description}</Text>}
+                  {exp.achievements.map((item, i) => (
+                    <View key={i} style={styles.bullet}>
+                      <Text style={styles.bulletDot}>•</Text>
+                      <Text style={styles.bulletText}>{item}</Text>
+                    </View>
+                  ))}
+                  {exp.technologies.length > 0 && <Text style={styles.techLine}>{exp.technologies.join(" · ")}</Text>}
+                </View>
+              );
+            })}
           </View>
         )}
 
         {cv.education.length > 0 && (
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>{labels.education}</Text>
-            {cv.education.map((edu, index) => (
-              <View key={index} style={styles.entry}>
-                <View style={styles.entryRow}>
-                  <Text style={styles.entryTitle}>
-                    {[edu.degree, edu.field].filter(Boolean).join(", ") || "—"}
-                    {edu.school && <Text style={styles.entryCompany}> · {edu.school}</Text>}
-                  </Text>
-                  <Text style={styles.entryMeta}>
-                    {formatDateRange(edu.startDate, edu.endDate, false, labels.present)}
-                  </Text>
+            {cv.education.map((edu, index) => {
+              const dateRange = formatDateRange(edu.startDate, edu.endDate, false, labels.present);
+              return (
+                <View key={index} style={styles.entry}>
+                  <View style={styles.entryRow}>
+                    <Text style={styles.entryTitle}>
+                      {[edu.degree, edu.field].filter(Boolean).join(", ") || "—"}
+                      {edu.school && <Text style={styles.entryCompany}> · {edu.school}</Text>}
+                    </Text>
+                    {dateRange && <Text style={styles.entryMeta}>{dateRange}</Text>}
+                  </View>
+                  {edu.description && <Text style={styles.bodyText}>{edu.description}</Text>}
                 </View>
-                {edu.description && <Text style={styles.bodyText}>{edu.description}</Text>}
-              </View>
-            ))}
+              );
+            })}
           </View>
         )}
 
