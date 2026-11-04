@@ -44,10 +44,17 @@ const styles = StyleSheet.create({
   entryTitle: { fontSize: 10, fontFamily: "Helvetica-Bold" },
   entryCompany: { fontFamily: "Helvetica" },
   entryMeta: { fontSize: 8.5, color: "#737373" },
-  bodyText: { marginTop: 2, lineHeight: 1.4 },
+  // react-pdf's line-height multiplier is applied on top of this font's own
+  // (much taller than CSS-normal) ascent/descent box, so a "normal-looking"
+  // value like 1.4 ends up ~2x the visual gap of single-spaced text — every
+  // wrapped line reads as if a blank line were inserted. Verified by
+  // measuring rendered glyph y-positions: 1.4 produced a 25pt gap between
+  // wrapped lines in a 10pt paragraph, vs ~13pt for the rest of the layout;
+  // 0.8 brings wrapped-line spacing back in line with the rest of the page.
+  bodyText: { marginTop: 2, lineHeight: 0.8 },
   bullet: { flexDirection: "row", marginTop: 1 },
   bulletDot: { width: 10, fontSize: 10 },
-  bulletText: { flex: 1, lineHeight: 1.4 },
+  bulletText: { flex: 1, lineHeight: 0.8 },
   techLine: { marginTop: 2, fontSize: 8.5, color: "#737373" },
   skillLine: { marginBottom: 3 },
 });
