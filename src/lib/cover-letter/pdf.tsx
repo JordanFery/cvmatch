@@ -7,7 +7,11 @@ import { Document, Page, Text, StyleSheet, renderToBuffer } from "@react-pdf/ren
 
 const styles = StyleSheet.create({
   page: { paddingVertical: 48, paddingHorizontal: 56, fontSize: 10.5, color: "#171717", fontFamily: "Helvetica" },
-  paragraph: { marginBottom: 10, lineHeight: 1.5 },
+  // See src/lib/cv/pdf.tsx for why this isn't ~1.3-1.5 like a CSS line-height
+  // would be: react-pdf's multiplier stacks on this font's own oversized
+  // line box, so 1.5 made a wrapped line within one paragraph read almost
+  // as far apart as two separate paragraphs. 0.8 brings it back in line.
+  paragraph: { marginBottom: 10, lineHeight: 0.8 },
 });
 
 export function CoverLetterPdfDocument({ content }: { content: string }) {
